@@ -30,12 +30,15 @@ func InitStore() (*sql.DB, error) {
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
 
-	seed(db)
+	err = createTables(db)
+	if err != nil {
+		return nil, err
+	}
 
 	return db, nil
 }
 
-func seed(db *sql.DB) error {
+func createTables(db *sql.DB) error {
 	//FIXME workaround for initializing db
 	time.Sleep(10 * time.Second)
 
@@ -78,9 +81,20 @@ func seed(db *sql.DB) error {
 		return err
 	}
 
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Countries (id int, name varchar(255) UNIQUE, PRIMARY KEY(id));")
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS ShipperCountries (shipperId int, countryId int, PRIMARY KEY(shipperId, countryId), FOREIGN KEY (shipperId) REFERENCES Shippers(id), FOREIGN KEY(countryId) REFERENCES Countries(id));")
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Orders (id int, deliveryAddressId int, productId int, shipperId int, PRIMARY KEY(id), FOREIGN KEY(deliveryAddressId) REFERENCES Addresses(id), FOREIGN KEY(productId) REFERENCES Products(id), FOREIGN KEY(shipperId) REFERENCES Shippers(id));")
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
