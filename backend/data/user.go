@@ -6,12 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type User struct {
-	Email string `json:"email"`
-	Uuid  string `json:"uuid"`
-	Name  string `json:"name"`
-}
-
 func GetUser(db *sql.DB, uuid string) (*User, error) {
 	user := &User{}
 	err := db.QueryRow("SELECT * FROM Users WHERE uuid=$1", uuid).Scan(&user)
@@ -28,6 +22,22 @@ func CreateUser(db *sql.DB, user *User) error {
 		return err
 	}
 	err = db.QueryRow("SELECT * FROM Users WHERE uuid=?", uuid).Scan(&user.Uuid, &user.Email, &user.Name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateUserName(db *sql.DB, user *User) error {
+	_, err := db.Exec("UPDATE Users SET name=?;", user.Name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateUserEmail(db *sql.DB, user *User) error {
+	_, err := db.Exec("UPDATE Users SET email=?;", user.Email)
 	if err != nil {
 		return err
 	}
