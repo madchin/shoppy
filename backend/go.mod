@@ -4,6 +4,7 @@ go 1.22.1
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/DATA-DOG/go-sqlmock v1.5.2 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cockroachdb/cockroach-go/v2 v2.3.7 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
