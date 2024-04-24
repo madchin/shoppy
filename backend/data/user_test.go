@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var columns = []*sqlmock.Column{
+var userColumns = []*sqlmock.Column{
 	sqlmock.NewColumn("uuid").OfType("varchar(36)", uuid.NewString()).Nullable(false),
 	sqlmock.NewColumn("name").OfType("varchar(255)", "randomName"),
 	sqlmock.NewColumn("email").OfType("varchar(255)", "email@email.com").Nullable(false),
@@ -25,7 +25,7 @@ func TestShouldGetUser(t *testing.T) {
 	uuid := uuid.New().String()
 	user := &User{Uuid: uuid, Name: "randomName", Email: "email@email.com"}
 
-	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM Users WHERE uuid=?")).WithArgs(uuid).WillReturnRows(sqlmock.NewRowsWithColumnDefinition(columns...).AddRow(user.Uuid, user.Name, user.Email))
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM Users WHERE uuid=?")).WithArgs(uuid).WillReturnRows(sqlmock.NewRowsWithColumnDefinition(userColumns...).AddRow(user.Uuid, user.Name, user.Email))
 	selectedUser, err := GetUser(db, uuid)
 	if err != nil {
 		t.Fatalf(fmt.Sprintf("%v", err))
@@ -69,7 +69,7 @@ func TestCreateUser(t *testing.T) {
 	t.Run("should NOT create when user email is empty", func(t *testing.T) {
 		user.Email = ""
 		err = user.Create(db)
-		if err != Err.EmptyEmail {
+		if err != ErrUser.EmptyEmail {
 			t.Fatalf(fmt.Sprintf("%v", err))
 		}
 	})
@@ -86,7 +86,7 @@ func TestShouldUpdateName(t *testing.T) {
 	uuid := uuid.New().String()
 	user := &User{Uuid: uuid, Name: "randomName", Email: "email@email.com"}
 
-	sqlmock.NewRowsWithColumnDefinition(columns...).AddRow(user.Uuid, user.Name, user.Email)
+	sqlmock.NewRowsWithColumnDefinition(userColumns...).AddRow(user.Uuid, user.Name, user.Email)
 	updateName := "updatedName"
 	user.Name = updateName
 	mock.ExpectExec(regexp.QuoteMeta("UPDATE Users SET name=? WHERE uuid=?")).WithArgs(user.Name, user.Uuid).WillReturnResult(sqlmock.NewResult(0, 1))
