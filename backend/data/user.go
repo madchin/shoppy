@@ -20,7 +20,7 @@ func (user *User) Create(db *sql.DB) error {
 		user.Uuid = uuid.New().String()
 	}
 	if user.Email == "" {
-		return ValidationError.EmptyEmail
+		return Err.EmptyEmail
 	}
 	_, err := db.Exec("INSERT INTO Users (uuid, name, email) VALUES (?, ?, ?)", user.Uuid, user.Name, user.Email)
 	if err != nil {

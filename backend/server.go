@@ -40,7 +40,7 @@ func main() {
 
 func rootHandler(c echo.Context, db *sql.DB) error {
 	user := &data.User{Name: "elo", Email: "yoyo"}
-	err := data.CreateUser(db, user)
+	err := user.Create(db)
 	if err != nil {
 		return c.HTML(http.StatusInternalServerError, err.Error())
 	}
