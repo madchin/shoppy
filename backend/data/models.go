@@ -13,7 +13,7 @@ type User struct {
 }
 
 type Address struct {
-	UserId     string `json:"userId"`
+	Uuid       string `json:"Uuid"`
 	Id         int    `json:"id"`
 	PostalCode string `json:"postalCode"`
 	Address    string `json:"address"`
@@ -24,12 +24,12 @@ type Address struct {
 type Addresses []Address
 
 type Phone struct {
-	UserId string `json:"userId"`
+	Uuid   string `json:"Uuid"`
 	Id     int    `json:"id"`
 	Number string `json:"number"`
 }
 
-type Phones []Phone
+type Phones []*Phone
 
 type Product struct {
 	Id    int     `json:"id"`
