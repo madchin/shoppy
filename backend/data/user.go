@@ -38,6 +38,9 @@ func (user *User) UpdateName(db *sql.DB) error {
 }
 
 func (user *User) UpdateEmail(db *sql.DB) error {
+	if user.Email == "" {
+		return &ErrEmptyEmail{user: user}
+	}
 	_, err := db.Exec("UPDATE Users SET email=? WHERE uuid=?", user.Email, user.Uuid)
 	if err != nil {
 		return err
