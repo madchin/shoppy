@@ -70,7 +70,7 @@ func TestCreateUser(t *testing.T) {
 		user.Email = ""
 		err = user.Create(db)
 		if err != err.(*ErrEmptyEmail) {
-			t.Fatalf(fmt.Sprintf("%v", err))
+			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))
 		}
 	})
 
