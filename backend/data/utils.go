@@ -13,6 +13,10 @@ type ErrMissingUuid struct {
 	userDetail *UserDetail
 }
 
+type ErrMissingPhoneNumber struct {
+	phone *Phone
+}
+
 type ErrMissingFirstName struct {
 	userDetail *UserDetail
 }
@@ -59,4 +63,8 @@ func (e *ErrMissingFirstName) Error() string {
 
 func (e *ErrMissingLastName) Error() string {
 	return fmt.Sprintf("Missing last name for user with uuid: %s and lastName: %s", e.userDetail.Uuid, e.userDetail.LastName)
+}
+
+func (e *ErrMissingPhoneNumber) Error() string {
+	return fmt.Sprintf("Missing phone number for user with uuid %s", e.phone.Uuid)
 }
