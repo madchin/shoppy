@@ -12,7 +12,7 @@ func GetUserDetails(db *sql.DB, uuid string) (*UserDetail, error) {
 }
 func (userDetail *UserDetail) Create(db *sql.DB) error {
 	if userDetail.Uuid == "" {
-		return ErrUserDetail.MissingUuid
+		return &ErrMissingUuid{userDetail: userDetail}
 	}
 	_, err := db.Exec("INSERT INTO UserDetails (uuid, firstName, lastName) VALUES (?, ?, ?)", userDetail.Uuid, userDetail.FirstName, userDetail.LastName)
 	if err != nil {
@@ -23,7 +23,7 @@ func (userDetail *UserDetail) Create(db *sql.DB) error {
 
 func (userDetail *UserDetail) UpdateFirstName(db *sql.DB) error {
 	if userDetail.FirstName == "" {
-		return ErrUserDetail.MissingFirstName
+		return &ErrMissingFirstName{userDetail: userDetail}
 	}
 	_, err := db.Exec("UPDATE UserDetails SET firstName=? WHERE uuid=?", userDetail.FirstName, userDetail.Uuid)
 	if err != nil {
@@ -34,7 +34,7 @@ func (userDetail *UserDetail) UpdateFirstName(db *sql.DB) error {
 
 func (userDetail *UserDetail) UpdateLastName(db *sql.DB) error {
 	if userDetail.LastName == "" {
-		return ErrUserDetail.MissingLastName
+		return &ErrMissingLastName{userDetail: userDetail}
 	}
 	_, err := db.Exec("UPDATE UserDetails SET lastName=? WHERE uuid=?", userDetail.LastName, userDetail.Uuid)
 	if err != nil {

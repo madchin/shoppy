@@ -72,8 +72,8 @@ func TestCreate(t *testing.T) {
 		userDetail.Uuid = ""
 		err = userDetail.Create(db)
 
-		if err != ErrUserDetail.MissingUuid {
-			t.Fatalf("User Details record has not been created, actual error: %v", err)
+		if err != err.(*ErrMissingUuid) {
+			t.Fatalf("An error different than expected occured, actual error: %v", err)
 		}
 		if err = mock.ExpectationsWereMet(); err != nil {
 			t.Fatalf("unmet expectation error: %s", err)
@@ -110,8 +110,8 @@ func TestUpdateUserDetailsFirstName(t *testing.T) {
 		userDetail.FirstName = ""
 		err = userDetail.UpdateFirstName(db)
 
-		if err != ErrUserDetail.MissingFirstName {
-			t.Fatalf("User Details first name has not been updated, actual error: %v", err)
+		if err != err.(*ErrMissingFirstName) {
+			t.Fatalf("An error different than expected occured, actual error: %v", err)
 		}
 
 		if err = mock.ExpectationsWereMet(); err != nil {
@@ -148,8 +148,8 @@ func TestUpdateUserDetailsLastName(t *testing.T) {
 		userDetail.LastName = ""
 		err = userDetail.UpdateLastName(db)
 
-		if err != ErrUserDetail.MissingLastName {
-			t.Fatalf("User Details last name has not been updated, actual error: %v", err)
+		if err != err.(*ErrMissingLastName) {
+			t.Fatalf("An error different than expected occured, actual error: %v", err)
 		}
 
 		if err = mock.ExpectationsWereMet(); err != nil {

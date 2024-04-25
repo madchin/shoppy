@@ -2,49 +2,38 @@ package data
 
 import "fmt"
 
-type emptyEmail struct{}
-
-type missingEnv struct {
+type errMissingEnv struct {
 	Keys []string
 }
 
-type missingUuid struct{}
+var ErrMissingEnv = &errMissingEnv{}
 
-type missingFirstName struct{}
-
-type missingLastName struct{}
-
-type errDbConfig struct {
-	MissingEnv *missingEnv
+type ErrMissingUuid struct {
+	user       *User
+	userDetail *UserDetail
 }
 
-type errUser struct {
-	User       *User
-	EmptyEmail *emptyEmail
+type ErrMissingFirstName struct {
+	userDetail *UserDetail
 }
 
-type errUserDetail struct {
-	MissingUuid      *missingUuid
-	UserDetail       *UserDetail
-	MissingFirstName *missingFirstName
-	MissingLastName  *missingLastName
+type ErrMissingLastName struct {
+	userDetail *UserDetail
 }
 
-var ErrDbConfig = &errDbConfig{}
+type ErrEmptyEmail struct {
+	user *User
+}
 
-var ErrUser = &errUser{}
-
-var ErrUserDetail = &errUserDetail{}
-
-func (e *missingEnv) Add(env string) {
+func (e *errMissingEnv) Add(env string) {
 	e.Keys = append(e.Keys, env)
 }
 
-func (e *emptyEmail) Error() string {
+func (e *ErrEmptyEmail) Error() string {
 	return "User email is empty"
 }
 
-func (e *missingEnv) Error() string {
+func (e *errMissingEnv) Error() string {
 	var missCount int
 	var missingEnvs string
 	for _, env := range e.Keys {
@@ -54,14 +43,20 @@ func (e *missingEnv) Error() string {
 	return fmt.Sprintf("%d count of envs are missing: %s", missCount, missingEnvs)
 }
 
-func (e *missingUuid) Error() string {
-	return fmt.Sprintf("Missing uuid for user with firstName: %s and lastName: %s", ErrUserDetail.UserDetail.FirstName, ErrUserDetail.UserDetail.LastName)
+func (e *ErrMissingUuid) Error() string {
+	if e.userDetail != nil {
+		return fmt.Sprintf("Missing uuid for user with firstName: %s and lastName: %s", e.userDetail.FirstName, e.userDetail.LastName)
+	}
+	if e.user != nil {
+		return fmt.Sprintf("Missing uuid for user with Name: %s and Email: %s", e.user.Name, e.user.Email)
+	}
+	return "Missing uuid"
 }
 
-func (e *missingFirstName) Error() string {
-	return fmt.Sprintf("Missing first name for user with uuid: %s and lastName: %s", ErrUserDetail.UserDetail.Uuid, ErrUserDetail.UserDetail.LastName)
+func (e *ErrMissingFirstName) Error() string {
+	return fmt.Sprintf("Missing first name for user with uuid: %s and lastName: %s", e.userDetail.Uuid, e.userDetail.FirstName)
 }
 
-func (e *missingLastName) Error() string {
-	return fmt.Sprintf("Missing last name for user with uuid: %s and lastName: %s", ErrUserDetail.UserDetail.Uuid, ErrUserDetail.UserDetail.LastName)
+func (e *ErrMissingLastName) Error() string {
+	return fmt.Sprintf("Missing last name for user with uuid: %s and lastName: %s", e.userDetail.Uuid, e.userDetail.LastName)
 }

@@ -17,10 +17,10 @@ func InitStore() (*sql.DB, error) {
 			envs[key] = value
 			continue
 		}
-		data.ErrDbConfig.MissingEnv.Add(key)
+		data.ErrMissingEnv.Add(key)
 	}
-	if len(data.ErrDbConfig.MissingEnv.Keys) >= 1 {
-		return nil, data.ErrDbConfig.MissingEnv
+	if len(data.ErrMissingEnv.Keys) >= 1 {
+		return nil, data.ErrMissingEnv
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", envs["DB_USER"], envs["DB_PASS"], envs["DB_HOST"], envs["DB_PORT"], envs["DB_NAME"])

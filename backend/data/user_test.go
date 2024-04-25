@@ -69,7 +69,7 @@ func TestCreateUser(t *testing.T) {
 	t.Run("should NOT create when user email is empty", func(t *testing.T) {
 		user.Email = ""
 		err = user.Create(db)
-		if err != ErrUser.EmptyEmail {
+		if err != err.(*ErrEmptyEmail) {
 			t.Fatalf(fmt.Sprintf("%v", err))
 		}
 	})
