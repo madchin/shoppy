@@ -52,22 +52,22 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Addresses (uuid varchar(36), id int, postalCode varchar(64), address varchar(255), country varchar(128), city varchar(128), PRIMARY KEY (id), FOREIGN KEY (uuid) REFERENCES Users(uuid) ON DELETE CASCADE)")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Addresses (uuid varchar(36), id int AUTO_INCREMENT, postalCode varchar(64), address varchar(255), country varchar(128), city varchar(128), PRIMARY KEY (id), FOREIGN KEY (uuid) REFERENCES Users(uuid) ON DELETE CASCADE)")
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Phones (uuid varchar(36), id int, number varchar(255), PRIMARY KEY (id), FOREIGN KEY (uuid) REFERENCES Users(uuid) ON DELETE CASCADE)")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Phones (uuid varchar(36), id int AUTO_INCREMENT, number varchar(255), PRIMARY KEY (id), FOREIGN KEY (uuid) REFERENCES Users(uuid) ON DELETE CASCADE)")
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Products (id int, name varchar(255) UNIQUE, count int, price DECIMAL(5,2), PRIMARY KEY (id))")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Products (id int AUTO_INCREMENT, name varchar(255) UNIQUE, count int, price DECIMAL(5,2), PRIMARY KEY (id))")
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Categories (id int, name varchar(255) UNIQUE, PRIMARY KEY (id))")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Categories (id int AUTO_INCREMENT, name varchar(255) UNIQUE, PRIMARY KEY (id))")
 	if err != nil {
 		return err
 	}
@@ -77,12 +77,12 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Shippers (id int, name varchar(255) UNIQUE, PRIMARY KEY(id))")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Shippers (id int AUTO_INCREMENT, name varchar(255) UNIQUE, PRIMARY KEY(id))")
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Countries (id int, name varchar(255) UNIQUE, PRIMARY KEY(id))")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Countries (id int AUTO_INCREMENT, name varchar(255) UNIQUE, PRIMARY KEY(id))")
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Orders (id int, deliveryAddressId int, productId int, shipperId int, PRIMARY KEY(id), FOREIGN KEY(deliveryAddressId) REFERENCES Addresses(id), FOREIGN KEY(productId) REFERENCES Products(id), FOREIGN KEY(shipperId) REFERENCES Shippers(id))")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Orders (id int AUTO_INCREMENT, deliveryAddressId int, productId int, shipperId int, PRIMARY KEY(id), FOREIGN KEY(deliveryAddressId) REFERENCES Addresses(id), FOREIGN KEY(productId) REFERENCES Products(id), FOREIGN KEY(shipperId) REFERENCES Shippers(id))")
 	if err != nil {
 		return err
 	}
