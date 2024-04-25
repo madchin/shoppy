@@ -7,6 +7,9 @@ import (
 )
 
 func GetUser(db *sql.DB, uuid string) (*User, error) {
+	if uuid == "" {
+		return nil, &ErrMissingUuid{user: &User{Uuid: uuid}}
+	}
 	user := &User{}
 	err := db.QueryRow("SELECT * FROM Users WHERE uuid=?", uuid).Scan(&user.Uuid, &user.Name, &user.Email)
 	if err != nil {
@@ -30,6 +33,9 @@ func (user *User) Create(db *sql.DB) error {
 }
 
 func (user *User) UpdateName(db *sql.DB) error {
+	if user.Uuid == "" {
+		return &ErrMissingUuid{user: user}
+	}
 	_, err := db.Exec("UPDATE Users SET name=? WHERE uuid=?", user.Name, user.Uuid)
 	if err != nil {
 		return err
@@ -38,6 +44,9 @@ func (user *User) UpdateName(db *sql.DB) error {
 }
 
 func (user *User) UpdateEmail(db *sql.DB) error {
+	if user.Uuid == "" {
+		return &ErrMissingUuid{user: user}
+	}
 	if user.Email == "" {
 		return &ErrEmptyEmail{user: user}
 	}
