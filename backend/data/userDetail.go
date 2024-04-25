@@ -3,6 +3,9 @@ package data
 import "database/sql"
 
 func GetUserDetails(db *sql.DB, uuid string) (*UserDetail, error) {
+	if uuid == "" {
+		return nil, &ErrMissingUuid{userDetail: &UserDetail{Uuid: uuid}}
+	}
 	userDetail := &UserDetail{}
 	err := db.QueryRow("SELECT * FROM UserDetails WHERE uuid=?", uuid).Scan(&userDetail.Uuid, &userDetail.FirstName, &userDetail.LastName)
 	if err != nil {
@@ -22,6 +25,9 @@ func (userDetail *UserDetail) Create(db *sql.DB) error {
 }
 
 func (userDetail *UserDetail) UpdateFirstName(db *sql.DB) error {
+	if userDetail.Uuid == "" {
+		return &ErrMissingUuid{userDetail: userDetail}
+	}
 	if userDetail.FirstName == "" {
 		return &ErrMissingFirstName{userDetail: userDetail}
 	}
@@ -33,6 +39,9 @@ func (userDetail *UserDetail) UpdateFirstName(db *sql.DB) error {
 }
 
 func (userDetail *UserDetail) UpdateLastName(db *sql.DB) error {
+	if userDetail.Uuid == "" {
+		return &ErrMissingUuid{userDetail: userDetail}
+	}
 	if userDetail.LastName == "" {
 		return &ErrMissingLastName{userDetail: userDetail}
 	}
