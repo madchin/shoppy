@@ -87,11 +87,11 @@ func TestCreateUser(t *testing.T) {
 		user := &User{Name: "randomName", Email: "email@email.com"}
 		mock.ExpectExec(regexp.QuoteMeta("INSERT INTO Users (uuid, name, email) VALUES (?, ?, ?)")).WithArgs(sqlmock.AnyArg(), user.Name, user.Email).WillReturnResult(sqlmock.NewResult(0, 1))
 		err = user.Create(db)
-		if err = mock.ExpectationsWereMet(); err != nil {
-			t.Fatalf("unmet expectation error: %s", err)
-		}
 		if err != nil {
 			t.Fatalf(fmt.Sprintf("User has not been created, actual error: %v", err))
+		}
+		if err = mock.ExpectationsWereMet(); err != nil {
+			t.Fatalf("unmet expectation error: %s", err)
 		}
 	})
 
