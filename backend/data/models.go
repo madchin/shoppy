@@ -1,19 +1,19 @@
 package data
 
 type UserDetail struct {
-	Uuid      string `json:"uuid"`
+	Uuid      string `json:"-"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 }
 
 type User struct {
 	Email string `json:"email"`
-	Uuid  string `json:"uuid"`
+	Uuid  string `json:"-"`
 	Name  string `json:"name"`
 }
 
 type Address struct {
-	Uuid       string `json:"Uuid"`
+	Uuid       string `json:"-"`
 	Id         int    `json:"id"`
 	PostalCode string `json:"postalCode"`
 	Address    string `json:"address"`
@@ -24,7 +24,7 @@ type Address struct {
 type Addresses []Address
 
 type Phone struct {
-	Uuid   string `json:"Uuid"`
+	Uuid   string `json:"-"`
 	Id     int    `json:"id"`
 	Number string `json:"number"`
 }
