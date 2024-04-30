@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"database/sql"
 	"encoding/json"
 	"net/http"
 )
@@ -11,7 +10,7 @@ type Error struct {
 	Code    int
 }
 
-type HandlerFunc func(db *sql.DB, uuid string, w http.ResponseWriter, r *http.Request)
+type UserHandlerFunc func(userService userService, uuid string, w http.ResponseWriter, r *http.Request)
 
 var GenericError *Error = &Error{Code: http.StatusInternalServerError, Message: "Oops! something went wrong"}
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/data"
 	db "backend/db"
 	handler "backend/handlers"
 	"fmt"
@@ -21,7 +22,7 @@ func main() {
 	if httpPort == "" {
 		httpPort = "8080"
 	}
-	http.Handle("/api/user", handler.SessionMiddleware(DB, handler.User))
+	http.Handle("/api/user", handler.SessionMiddleware(data.NewUserRepository(DB), handler.User))
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", httpPort), nil))
 }

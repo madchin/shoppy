@@ -1,14 +1,13 @@
 package handler
 
 import (
-	"database/sql"
+	"backend/data"
 	"net/http"
 )
 
-func SessionMiddleware(db *sql.DB, handler HandlerFunc) http.HandlerFunc {
+func SessionMiddleware(userRepo *data.UserRepository, handler UserHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		//check for session
-		uuid := ""
-		handler(db, uuid, w, r)
+		handler(userRepo, "", w, r)
 	}
 }

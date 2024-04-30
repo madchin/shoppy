@@ -2,17 +2,19 @@ package handler
 
 import (
 	"backend/data"
-	"database/sql"
 	"encoding/json"
 	"net/http"
 )
 
-func get(db *sql.DB, uuid string, w http.ResponseWriter) {
-	if uuid == "" {
-		ErrorMsg(w, http.StatusUnauthorized, "Unauthorized to perform this action")
-		return
-	}
-	user, err := data.GetUser(db, uuid)
+type userService interface {
+	GetUser(uuid string) (*data.User, error)
+	Create(user *data.User) error
+	UpdateName(user *data.User) error
+	UpdateEmail(user *data.User) error
+}
+
+func get(userService userService, uuid string, w http.ResponseWriter) {
+	user, err := userService.GetUser(uuid)
 	if err != nil {
 		ErrorMsg(w, http.StatusBadRequest, "Unable to retrieve user")
 		return
@@ -25,13 +27,13 @@ func get(db *sql.DB, uuid string, w http.ResponseWriter) {
 	w.Write(msg)
 }
 
-func create(db *sql.DB, w http.ResponseWriter, r *http.Request) {
+func create(userService userService, w http.ResponseWriter, r *http.Request) {
 	user := &data.User{}
 	if err := json.NewDecoder(r.Body).Decode(user); err != nil {
 		ErrorMsg(w, http.StatusBadRequest, GenericError.Message)
 		return
 	}
-	if err := user.Create(db); err != nil {
+	if err := userService.Create(user); err != nil {
 		ErrorMsg(w, http.StatusBadRequest, "Error occured during creating user")
 		return
 	}
@@ -43,7 +45,7 @@ func create(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	w.Write(msg)
 }
 
-func update(db *sql.DB, uuid string, w http.ResponseWriter, r *http.Request) {
+func update(userService userService, uuid string, w http.ResponseWriter, r *http.Request) {
 	if uuid == "" {
 		ErrorMsg(w, http.StatusUnauthorized, "Unauthorized to perform this action")
 		return
@@ -53,19 +55,19 @@ func update(db *sql.DB, uuid string, w http.ResponseWriter, r *http.Request) {
 		ErrorMsg(w, http.StatusBadRequest, GenericError.Message)
 		return
 	}
-	user, err := data.GetUser(db, uuid)
+	user, err := userService.GetUser(uuid)
 	if err != nil {
 		ErrorMsg(w, http.StatusBadRequest, "User with provided id not exists")
 		return
 	}
 	if user.Name != incomingUser.Name {
-		if err = user.UpdateName(db); err != nil {
+		if err = userService.UpdateName(user); err != nil {
 			ErrorMsg(w, http.StatusBadRequest, "Updating name failed")
 			return
 		}
 	}
 	if user.Email != incomingUser.Email {
-		if err = user.UpdateEmail(db); err != nil {
+		if err = userService.UpdateEmail(user); err != nil {
 			ErrorMsg(w, http.StatusBadRequest, "Updating email failed")
 			return
 		}
@@ -78,15 +80,15 @@ func update(db *sql.DB, uuid string, w http.ResponseWriter, r *http.Request) {
 	w.Write(msg)
 }
 
-func User(db *sql.DB, uuid string, w http.ResponseWriter, r *http.Request) {
+func User(service userService, uuid string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch r.Method {
 	case "POST":
-		create(db, w, r)
+		create(service, w, r)
 	case "GET":
-		get(db, uuid, w)
+		get(service, uuid, w)
 	case "PUT":
-		update(db, uuid, w, r)
+		update(service, uuid, w, r)
 	default:
 		ErrorMsg(w, http.StatusMethodNotAllowed, "Method not allowed")
 	}

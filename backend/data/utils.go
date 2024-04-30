@@ -1,6 +1,11 @@
 package data
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
+)
 
 type errMissingEnv struct {
 	Keys []string
@@ -67,4 +72,10 @@ func (e *ErrMissingLastName) Error() string {
 
 func (e *ErrMissingPhoneNumber) Error() string {
 	return fmt.Sprintf("Missing phone number for user with uuid %s", e.phone.Uuid)
+}
+
+var UserColumns = []*sqlmock.Column{
+	sqlmock.NewColumn("uuid").OfType("varchar(36)", uuid.NewString()).Nullable(false),
+	sqlmock.NewColumn("name").OfType("varchar(255)", "randomName"),
+	sqlmock.NewColumn("email").OfType("varchar(255)", "email@email.com").Nullable(false),
 }
