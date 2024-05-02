@@ -47,7 +47,7 @@ func TestGetUserDetails(t *testing.T) {
 
 	t.Run("Should NOT get user details when user uuid is empty", func(t *testing.T) {
 		_, err := GetUserDetails(db, "")
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))
 		}
 	})
@@ -78,7 +78,7 @@ func TestCreate(t *testing.T) {
 	t.Run("Should NOT create user details when uuid is not provided", func(t *testing.T) {
 		userDetail := &UserDetail{FirstName: "firstName", LastName: "lastName"}
 		err = userDetail.Create(db)
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf("An error different than expected occured, actual error: %v", err)
 		}
 		if err = mock.ExpectationsWereMet(); err != nil {
@@ -116,7 +116,7 @@ func TestUpdateUserDetailsFirstName(t *testing.T) {
 		userDetail := &UserDetail{Uuid: uuid, LastName: "lastName"}
 		err = userDetail.UpdateFirstName(db)
 
-		if err != err.(*ErrMissingFirstName) {
+		if err != err.(ErrMissingFirstName) {
 			t.Fatalf("An error different than expected occured, actual error: %v", err)
 		}
 
@@ -128,7 +128,7 @@ func TestUpdateUserDetailsFirstName(t *testing.T) {
 	t.Run("Should NOT update user detail first name when uuid is not provided", func(t *testing.T) {
 		userDetail := &UserDetail{FirstName: "FirstName", LastName: "lastName"}
 		err = userDetail.UpdateFirstName(db)
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))
 		}
 	})
@@ -162,7 +162,7 @@ func TestUpdateUserDetailsLastName(t *testing.T) {
 		userDetail := &UserDetail{Uuid: uuid, FirstName: "firstName"}
 		err = userDetail.UpdateLastName(db)
 
-		if err != err.(*ErrMissingLastName) {
+		if err != err.(ErrMissingLastName) {
 			t.Fatalf("An error different than expected occured, actual error: %v", err)
 		}
 
@@ -174,7 +174,7 @@ func TestUpdateUserDetailsLastName(t *testing.T) {
 	t.Run("Should NOT update user last name when uuid is not provided", func(t *testing.T) {
 		userDetail := &UserDetail{FirstName: "firstName", LastName: "lastName"}
 		err = userDetail.UpdateLastName(db)
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))
 		}
 	})

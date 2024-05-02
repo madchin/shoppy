@@ -43,7 +43,7 @@ func TestGetUser(t *testing.T) {
 
 	t.Run("Should not get user when uuid is empty", func(t *testing.T) {
 		_, err := userRepo.GetUser("")
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))
 		}
 	})
@@ -74,7 +74,7 @@ func TestCreateUser(t *testing.T) {
 	t.Run("should NOT create when user email is empty", func(t *testing.T) {
 		user := &User{Uuid: uuid, Name: "randomName"}
 		err = userRepo.Create(user)
-		if err != err.(*ErrEmptyEmail) {
+		if err != err.(ErrEmptyEmail) {
 			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))
 		}
 	})
@@ -123,7 +123,7 @@ func TestUpdateName(t *testing.T) {
 	t.Run("Should NOT update user name when user uuid is empty", func(t *testing.T) {
 		user := &User{Name: "randomName", Email: "email@email.com"}
 		err = userRepo.UpdateName(user)
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))
 		}
 	})
@@ -153,7 +153,7 @@ func TestUpdateEmail(t *testing.T) {
 	t.Run("Should NOT update user email when user uuid is empty", func(t *testing.T) {
 		user := &User{Name: "randomName", Email: "email@email.com"}
 		err = userRepo.UpdateEmail(user)
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))
 		}
 	})

@@ -6,7 +6,7 @@ import (
 
 func GetPhones(db *sql.DB, uuid string) (Phones, error) {
 	if uuid == "" {
-		return nil, &ErrMissingUuid{}
+		return nil, ErrMissingUuid{}
 	}
 	var phones Phones
 	rows, err := db.Query("SELECT id, number FROM Phones WHERE uuid=?", uuid)
@@ -30,7 +30,7 @@ func GetPhones(db *sql.DB, uuid string) (Phones, error) {
 
 func (p *Phone) Create(db *sql.DB) error {
 	if p.Uuid == "" {
-		return &ErrMissingUuid{}
+		return ErrMissingUuid{}
 	}
 	_, err := db.Exec("INSERT INTO Phones (uuid,number) VALUES (?,?)", p.Uuid, p.Number)
 	if err != nil {
@@ -41,10 +41,10 @@ func (p *Phone) Create(db *sql.DB) error {
 
 func (p *Phone) Update(db *sql.DB) error {
 	if p.Uuid == "" {
-		return &ErrMissingUuid{}
+		return ErrMissingUuid{}
 	}
 	if p.Number == "" {
-		return &ErrMissingPhoneNumber{}
+		return ErrMissingPhoneNumber{}
 	}
 	_, err := db.Exec("UPDATE Phones SET number=? WHERE uuid=?", p.Number, p.Uuid)
 	if err != nil {
@@ -55,10 +55,10 @@ func (p *Phone) Update(db *sql.DB) error {
 
 func (p *Phone) Delete(db *sql.DB) error {
 	if p.Uuid == "" {
-		return &ErrMissingUuid{}
+		return ErrMissingUuid{}
 	}
 	if p.Number == "" {
-		return &ErrMissingPhoneNumber{phone: p}
+		return ErrMissingPhoneNumber{phone: p}
 	}
 	_, err := db.Exec("DELETE FROM Phones WHERE uuid=? AND number=?", p.Uuid, p.Number)
 	if err != nil {

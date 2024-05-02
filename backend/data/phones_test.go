@@ -56,7 +56,7 @@ func TestGetPhones(t *testing.T) {
 	})
 	t.Run("Should not get phone when uuid is empty", func(t *testing.T) {
 		_, err := GetPhones(db, "")
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf("An unexpected error occured, actual error: %v", err)
 		}
 	})
@@ -72,7 +72,7 @@ func TestCreatePhone(t *testing.T) {
 	t.Run("Should NOT create phone when uuid is empty", func(t *testing.T) {
 		p := &Phone{Number: "123123123"}
 		err := p.Create(db)
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}
 	})
@@ -113,14 +113,14 @@ func TestUpdateNumber(t *testing.T) {
 	t.Run("Should NOT update number when number is empty", func(t *testing.T) {
 		p := &Phone{Uuid: uuid.NewString()}
 		err := p.Update(db)
-		if err != err.(*ErrMissingPhoneNumber) {
+		if err != err.(ErrMissingPhoneNumber) {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}
 	})
 	t.Run("Should NOT update number when uuid is empty", func(t *testing.T) {
 		p := &Phone{Number: "123132123"}
 		err := p.Update(db)
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}
 	})
@@ -147,14 +147,14 @@ func TestDeleteNumber(t *testing.T) {
 	t.Run("Should NOT delete number when number is empty", func(t *testing.T) {
 		p := &Phone{Uuid: uuid.NewString()}
 		err := p.Delete(db)
-		if err != err.(*ErrMissingPhoneNumber) {
+		if err != err.(ErrMissingPhoneNumber) {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}
 	})
 	t.Run("Should NOT delete number when uuid is empty", func(t *testing.T) {
 		p := &Phone{Number: "123132123"}
 		err := p.Delete(db)
-		if err != err.(*ErrMissingUuid) {
+		if err != err.(ErrMissingUuid) {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}
 	})

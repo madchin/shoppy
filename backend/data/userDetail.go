@@ -4,7 +4,7 @@ import "database/sql"
 
 func GetUserDetails(db *sql.DB, uuid string) (*UserDetail, error) {
 	if uuid == "" {
-		return nil, &ErrMissingUuid{userDetail: &UserDetail{Uuid: uuid}}
+		return nil, ErrMissingUuid{userDetail: &UserDetail{Uuid: uuid}}
 	}
 	userDetail := &UserDetail{}
 	err := db.QueryRow("SELECT * FROM UserDetails WHERE uuid=?", uuid).Scan(&userDetail.Uuid, &userDetail.FirstName, &userDetail.LastName)
@@ -15,7 +15,7 @@ func GetUserDetails(db *sql.DB, uuid string) (*UserDetail, error) {
 }
 func (userDetail *UserDetail) Create(db *sql.DB) error {
 	if userDetail.Uuid == "" {
-		return &ErrMissingUuid{userDetail: userDetail}
+		return ErrMissingUuid{userDetail: userDetail}
 	}
 	_, err := db.Exec("INSERT INTO UserDetails (uuid, firstName, lastName) VALUES (?, ?, ?)", userDetail.Uuid, userDetail.FirstName, userDetail.LastName)
 	if err != nil {
@@ -26,10 +26,10 @@ func (userDetail *UserDetail) Create(db *sql.DB) error {
 
 func (userDetail *UserDetail) UpdateFirstName(db *sql.DB) error {
 	if userDetail.Uuid == "" {
-		return &ErrMissingUuid{userDetail: userDetail}
+		return ErrMissingUuid{userDetail: userDetail}
 	}
 	if userDetail.FirstName == "" {
-		return &ErrMissingFirstName{userDetail: userDetail}
+		return ErrMissingFirstName{userDetail: userDetail}
 	}
 	_, err := db.Exec("UPDATE UserDetails SET firstName=? WHERE uuid=?", userDetail.FirstName, userDetail.Uuid)
 	if err != nil {
@@ -40,10 +40,10 @@ func (userDetail *UserDetail) UpdateFirstName(db *sql.DB) error {
 
 func (userDetail *UserDetail) UpdateLastName(db *sql.DB) error {
 	if userDetail.Uuid == "" {
-		return &ErrMissingUuid{userDetail: userDetail}
+		return ErrMissingUuid{userDetail: userDetail}
 	}
 	if userDetail.LastName == "" {
-		return &ErrMissingLastName{userDetail: userDetail}
+		return ErrMissingLastName{userDetail: userDetail}
 	}
 	_, err := db.Exec("UPDATE UserDetails SET lastName=? WHERE uuid=?", userDetail.LastName, userDetail.Uuid)
 	if err != nil {
