@@ -96,7 +96,7 @@ func TestGet(t *testing.T) {
 		if res.StatusCode != http.StatusBadRequest {
 			t.Fatalf("Wrong response status code, actual: %d, expected: %d", res.StatusCode, http.StatusBadRequest)
 		}
-		errorMsg := &Error{}
+		errorMsg := Error{}
 		body := make([]byte, 256)
 		n, err := res.Body.Read(body)
 		if err != nil && err != io.EOF {
@@ -106,7 +106,7 @@ func TestGet(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error during closing response body, actual err: %v", err)
 		}
-		err = json.Unmarshal(body[:n], errorMsg)
+		err = json.Unmarshal(body[:n], &errorMsg)
 		if err != nil {
 			t.Fatalf("Error during unmarshaling response body, actual err: %v", err)
 		}
@@ -188,7 +188,7 @@ func TestPost(t *testing.T) {
 		if res.StatusCode != http.StatusBadRequest {
 			t.Fatalf("Wrong status code, actual: %d, expected: %d", res.StatusCode, http.StatusBadRequest)
 		}
-		errorMsg := &Error{}
+		errorMsg := Error{}
 		body := make([]byte, 256)
 		n, err := res.Body.Read(body)
 
@@ -199,7 +199,7 @@ func TestPost(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error during closing response body, actual err: %v", err)
 		}
-		err = json.Unmarshal(body[:n], errorMsg)
+		err = json.Unmarshal(body[:n], &errorMsg)
 		if err != nil {
 			t.Fatalf("Error during unmarshaling response body, actual err: %v", err)
 		}
@@ -228,7 +228,7 @@ func TestPost(t *testing.T) {
 		if res.StatusCode != http.StatusBadRequest {
 			t.Fatalf("Wrong status code, actual: %d, expected: %d", res.StatusCode, http.StatusBadRequest)
 		}
-		errorMsg := &Error{}
+		errorMsg := Error{}
 		body := make([]byte, 256)
 		n, err := res.Body.Read(body)
 
@@ -239,7 +239,7 @@ func TestPost(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error during closing response body, actual err: %v", err)
 		}
-		err = json.Unmarshal(body[:n], errorMsg)
+		err = json.Unmarshal(body[:n], &errorMsg)
 		if err != nil {
 			t.Fatalf("Error during unmarshaling response body, actual err: %v", err)
 		}
@@ -271,7 +271,7 @@ func TestPut(t *testing.T) {
 		if res.StatusCode != http.StatusUnauthorized {
 			t.Fatalf("Wrong status code in response, expected: %d, actual: %d", http.StatusUnauthorized, res.StatusCode)
 		}
-		errorMsg := &Error{}
+		errorMsg := Error{}
 		body := make([]byte, 256)
 		n, err := res.Body.Read(body)
 
@@ -282,7 +282,7 @@ func TestPut(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error during closing response body, actual err: %v", err)
 		}
-		err = json.Unmarshal(body[:n], errorMsg)
+		err = json.Unmarshal(body[:n], &errorMsg)
 		if err != nil {
 			t.Fatalf("Error during unmarshaling response body, actual err: %v", err)
 		}
@@ -312,7 +312,7 @@ func TestPut(t *testing.T) {
 		if res.StatusCode != http.StatusBadRequest {
 			t.Fatalf("Wrong status code in response, expected: %d, actual: %d", http.StatusBadRequest, res.StatusCode)
 		}
-		errorMsg := &Error{}
+		errorMsg := Error{}
 		body := make([]byte, 256)
 		n, err := res.Body.Read(body)
 
@@ -323,7 +323,7 @@ func TestPut(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error during closing response body, actual err: %v", err)
 		}
-		err = json.Unmarshal(body[:n], errorMsg)
+		err = json.Unmarshal(body[:n], &errorMsg)
 		if err != nil {
 			t.Fatalf("Error during unmarshaling response body, actual err: %v", err)
 		}
@@ -360,7 +360,7 @@ func TestPut(t *testing.T) {
 		if res.StatusCode != http.StatusBadRequest {
 			t.Fatalf("Wrong status code in response, expected: %d, actual: %d", http.StatusBadRequest, res.StatusCode)
 		}
-		errorMsg := &Error{}
+		errorMsg := Error{}
 		body := make([]byte, 256)
 		n, err := res.Body.Read(body)
 
@@ -371,7 +371,7 @@ func TestPut(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error during closing response body, actual err: %v", err)
 		}
-		err = json.Unmarshal(body[:n], errorMsg)
+		err = json.Unmarshal(body[:n], &errorMsg)
 		if err != nil {
 			t.Fatalf("Error during unmarshaling response body, actual err: %v", err)
 		}
@@ -413,7 +413,7 @@ func TestPut(t *testing.T) {
 		if res.StatusCode != http.StatusBadRequest {
 			t.Fatalf("Wrong status code in response, expected: %d, actual: %d", http.StatusBadRequest, res.StatusCode)
 		}
-		errorMsg := &Error{}
+		errorMsg := Error{}
 		body := make([]byte, 256)
 		n, err := res.Body.Read(body)
 
@@ -424,7 +424,7 @@ func TestPut(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error during closing response body, actual err: %v", err)
 		}
-		err = json.Unmarshal(body[:n], errorMsg)
+		err = json.Unmarshal(body[:n], &errorMsg)
 		if err != nil {
 			t.Fatalf("Error during unmarshaling response body, actual err: %v", err)
 		}
@@ -473,7 +473,7 @@ func TestPut(t *testing.T) {
 		if res.StatusCode != http.StatusBadRequest {
 			t.Fatalf("Wrong status code in response, expected: %d, actual: %d", http.StatusBadRequest, res.StatusCode)
 		}
-		errorMsg := &Error{}
+		errorMsg := Error{}
 		body := make([]byte, 256)
 		n, err := res.Body.Read(body)
 
@@ -484,7 +484,7 @@ func TestPut(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error during closing response body, actual err: %v", err)
 		}
-		err = json.Unmarshal(body[:n], errorMsg)
+		err = json.Unmarshal(body[:n], &errorMsg)
 		if err != nil {
 			t.Fatalf("Error during unmarshaling response body, actual err: %v", err)
 		}
@@ -527,7 +527,7 @@ func TestPut(t *testing.T) {
 		if res.StatusCode != http.StatusBadRequest {
 			t.Fatalf("Wrong status code in response, expected: %d, actual: %d", http.StatusBadRequest, res.StatusCode)
 		}
-		errorMsg := &Error{}
+		errorMsg := Error{}
 		body := make([]byte, 256)
 		n, err := res.Body.Read(body)
 
@@ -538,7 +538,7 @@ func TestPut(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error during closing response body, actual err: %v", err)
 		}
-		err = json.Unmarshal(body[:n], errorMsg)
+		err = json.Unmarshal(body[:n], &errorMsg)
 		if err != nil {
 			t.Fatalf("Error during unmarshaling response body, actual err: %v", err)
 		}

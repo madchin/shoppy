@@ -12,10 +12,10 @@ type Error struct {
 
 type UserHandlerFunc func(userService userService, uuid string, w http.ResponseWriter, r *http.Request)
 
-var GenericError *Error = &Error{Code: http.StatusInternalServerError, Message: "Oops! something went wrong"}
+var GenericError Error = Error{Code: http.StatusInternalServerError, Message: "Oops! something went wrong"}
 
 func ErrorMsg(w http.ResponseWriter, status int, msg string) {
-	parsedMsg, err := json.Marshal(&Error{Code: status, Message: msg})
+	parsedMsg, err := json.Marshal(Error{Code: status, Message: msg})
 	if err != nil {
 		msg, _ := json.Marshal(GenericError)
 		w.WriteHeader(GenericError.Code)
