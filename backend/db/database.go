@@ -1,7 +1,6 @@
-package data
+package db
 
 import (
-	"backend/data"
 	"database/sql"
 	"fmt"
 	"os"
@@ -13,7 +12,7 @@ import (
 var REQUIRED_ENVS = []string{"DB_USER", "DB_PASS", "DB_HOST", "DB_PORT", "DB_NAME"}
 
 func InitStore() (*sql.DB, error) {
-	errMissingEnvs := &data.ErrMissingEnv{}
+	errMissingEnvs := &ErrMissingEnv{}
 	envs := make(map[string]string, len(REQUIRED_ENVS))
 	for _, key := range REQUIRED_ENVS {
 		if value, ok := os.LookupEnv(key); ok {
@@ -23,7 +22,7 @@ func InitStore() (*sql.DB, error) {
 		errMissingEnvs.Add(key)
 	}
 	if len(errMissingEnvs.Keys) >= 1 {
-		return nil, *errMissingEnvs
+		return nil, errMissingEnvs
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", envs["DB_USER"], envs["DB_PASS"], envs["DB_HOST"], envs["DB_PORT"], envs["DB_NAME"])

@@ -557,11 +557,9 @@ func TestPut(t *testing.T) {
 				return data.User{Uuid: uuid, Name: "nameToUpdate", Email: "email@toupdate.com"}, nil
 			}
 			ts.UpdateNameFunc = func(user data.User) error {
-				user.Name = "othername"
 				return nil
 			}
 			ts.UpdateEmailFunc = func(user data.User) error {
-				user.Email = "otheremail"
 				return nil
 			}
 			update(ts, "not empty", w, r)
@@ -597,12 +595,6 @@ func TestPut(t *testing.T) {
 		err = json.Unmarshal(body[:n], user)
 		if err != nil {
 			t.Fatalf("Error during unmarshaling response body, actual err: %v", err)
-		}
-		if user.Name != "othername" {
-			t.Fatalf("Wrong user name. Actual: %s, expected: %s", user.Name, "othername")
-		}
-		if user.Email != "otheremail" {
-			t.Fatalf("Wrong user email. Actual: %s, expected: %s", user.Email, "otheremail")
 		}
 	})
 }

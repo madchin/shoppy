@@ -58,7 +58,7 @@ func update(userService userService, uuid string, w http.ResponseWriter, r *http
 		ErrorMsg(w, http.StatusBadRequest, GenericError.Message)
 		return
 	}
-	user, err := userService.GetUser(uuid)
+	retrievedUser, err := userService.GetUser(uuid)
 	if err != nil {
 		ErrorMsg(w, http.StatusBadRequest, "User with provided id not exists")
 		return
@@ -66,8 +66,8 @@ func update(userService userService, uuid string, w http.ResponseWriter, r *http
 
 	errorChannel := make(chan string, 2)
 	go func(chan<- string) {
-		if user.Name != incomingUser.Name {
-			if err = userService.UpdateName(user); err != nil {
+		if retrievedUser.Name != incomingUser.Name {
+			if err = userService.UpdateName(*incomingUser); err != nil {
 				errorChannel <- "Updating name failed"
 				return
 			}
@@ -75,8 +75,8 @@ func update(userService userService, uuid string, w http.ResponseWriter, r *http
 		}
 	}(errorChannel)
 	go func(chan<- string) {
-		if user.Email != incomingUser.Email {
-			if err = userService.UpdateEmail(user); err != nil {
+		if retrievedUser.Email != incomingUser.Email {
+			if err = userService.UpdateEmail(*incomingUser); err != nil {
 				errorChannel <- "Updating email failed"
 				return
 			}
@@ -94,7 +94,7 @@ func update(userService userService, uuid string, w http.ResponseWriter, r *http
 		ErrorMsg(w, http.StatusBadRequest, strings.Join(errorMessages, ", "))
 		return
 	}
-	msg, err := json.Marshal(user)
+	msg, err := json.Marshal(incomingUser)
 	if err != nil {
 		ErrorMsg(w, http.StatusInternalServerError, GenericError.Message)
 		return
