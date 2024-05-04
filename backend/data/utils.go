@@ -7,34 +7,29 @@ import (
 	"github.com/google/uuid"
 )
 
-type errMissingEnv struct {
+type ErrMissingEnv struct {
 	Keys []string
 }
 
-var ErrMissingEnv = errMissingEnv{}
-
-type ErrMissingUuid struct {
-	user       *User
-	userDetail *UserDetail
-}
+type ErrMissingUuid struct{}
 
 type ErrMissingPhoneNumber struct {
-	phone *Phone
+	Phone
 }
 
 type ErrMissingFirstName struct {
-	userDetail *UserDetail
+	userDetail UserDetail
 }
 
 type ErrMissingLastName struct {
-	userDetail *UserDetail
+	userDetail UserDetail
 }
 
 type ErrEmptyEmail struct {
-	user *User
+	user User
 }
 
-func (e errMissingEnv) Add(env string) {
+func (e *ErrMissingEnv) Add(env string) {
 	e.Keys = append(e.Keys, env)
 }
 
@@ -42,7 +37,7 @@ func (e ErrEmptyEmail) Error() string {
 	return "User email is empty"
 }
 
-func (e errMissingEnv) Error() string {
+func (e ErrMissingEnv) Error() string {
 	var missCount int
 	var missingEnvs string
 	for _, env := range e.Keys {
@@ -53,12 +48,6 @@ func (e errMissingEnv) Error() string {
 }
 
 func (e ErrMissingUuid) Error() string {
-	if e.userDetail != nil {
-		return fmt.Sprintf("Missing uuid for user with firstName: %s and lastName: %s", e.userDetail.FirstName, e.userDetail.LastName)
-	}
-	if e.user != nil {
-		return fmt.Sprintf("Missing uuid for user with Name: %s and Email: %s", e.user.Name, e.user.Email)
-	}
 	return "Missing uuid"
 }
 
@@ -71,7 +60,7 @@ func (e ErrMissingLastName) Error() string {
 }
 
 func (e ErrMissingPhoneNumber) Error() string {
-	return fmt.Sprintf("Missing phone number for user with uuid %s", e.phone.Uuid)
+	return fmt.Sprintf("Missing phone number for user with uuid %s", e.Phone.Uuid)
 }
 
 var UserColumns = []*sqlmock.Column{

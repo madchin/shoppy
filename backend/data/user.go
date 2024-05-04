@@ -6,27 +6,27 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserRepository struct {
+type userRepository struct {
 	Db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) *UserRepository {
-	return &UserRepository{Db: db}
+func NewUserRepository(db *sql.DB) *userRepository {
+	return &userRepository{Db: db}
 }
 
-func (repo *UserRepository) GetUser(uuid string) (*User, error) {
+func (repo *userRepository) GetUser(uuid string) (User, error) {
+	user := User{}
 	if uuid == "" {
-		return nil, ErrMissingUuid{}
+		return User{}, ErrMissingUuid{}
 	}
-	user := &User{}
 	err := repo.Db.QueryRow("SELECT * FROM Users WHERE uuid=?", uuid).Scan(&user.Uuid, &user.Name, &user.Email)
 	if err != nil {
-		return nil, err
+		return User{}, err
 	}
 	return user, nil
 }
 
-func (repo *UserRepository) Create(user *User) error {
+func (repo *userRepository) Create(user User) error {
 	if user.Uuid == "" {
 		user.Uuid = uuid.New().String()
 	}
@@ -40,9 +40,9 @@ func (repo *UserRepository) Create(user *User) error {
 	return nil
 }
 
-func (repo *UserRepository) UpdateName(user *User) error {
+func (repo *userRepository) UpdateName(user User) error {
 	if user.Uuid == "" {
-		return ErrMissingUuid{user: user}
+		return ErrMissingUuid{}
 	}
 	_, err := repo.Db.Exec("UPDATE Users SET name=? WHERE uuid=?", user.Name, user.Uuid)
 	if err != nil {
@@ -51,9 +51,9 @@ func (repo *UserRepository) UpdateName(user *User) error {
 	return nil
 }
 
-func (repo *UserRepository) UpdateEmail(user *User) error {
+func (repo *userRepository) UpdateEmail(user User) error {
 	if user.Uuid == "" {
-		return ErrMissingUuid{user: user}
+		return ErrMissingUuid{}
 	}
 	if user.Email == "" {
 		return ErrEmptyEmail{user: user}

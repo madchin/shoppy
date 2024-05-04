@@ -14,34 +14,34 @@ import (
 )
 
 type testUserService struct {
-	GetUserFunc     func(uuid string) (*data.User, error)
-	CreateFunc      func(user *data.User) error
-	UpdateNameFunc  func(user *data.User) error
-	UpdateEmailFunc func(user *data.User) error
+	GetUserFunc     func(uuid string) (data.User, error)
+	CreateFunc      func(user data.User) error
+	UpdateNameFunc  func(user data.User) error
+	UpdateEmailFunc func(user data.User) error
 }
 
-func (t *testUserService) GetUser(uuid string) (*data.User, error) {
+func (t testUserService) GetUser(uuid string) (data.User, error) {
 	if t.GetUserFunc != nil {
 		return t.GetUserFunc(uuid)
 	}
-	return nil, fmt.Errorf("GetUserFunc not implemented")
+	return data.User{}, fmt.Errorf("GetUserFunc not implemented")
 }
 
-func (t *testUserService) Create(user *data.User) error {
+func (t testUserService) Create(user data.User) error {
 	if t.CreateFunc != nil {
 		return t.CreateFunc(user)
 	}
 	return fmt.Errorf("CreateFunc not implemented")
 }
 
-func (t *testUserService) UpdateName(user *data.User) error {
+func (t testUserService) UpdateName(user data.User) error {
 	if t.UpdateNameFunc != nil {
 		return t.UpdateNameFunc(user)
 	}
 	return fmt.Errorf("UpdateNameFunc not implemented")
 }
 
-func (t *testUserService) UpdateEmail(user *data.User) error {
+func (t testUserService) UpdateEmail(user data.User) error {
 	if t.UpdateEmailFunc != nil {
 		return t.UpdateEmailFunc(user)
 	}
@@ -51,9 +51,9 @@ func (t *testUserService) UpdateEmail(user *data.User) error {
 func TestGet(t *testing.T) {
 	t.Run("Should get user", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
-			ts.GetUserFunc = func(uuid string) (*data.User, error) {
-				return &data.User{Uuid: uuid, Name: "someName", Email: "email@email.com"}, nil
+			ts := testUserService{}
+			ts.GetUserFunc = func(uuid string) (data.User, error) {
+				return data.User{Uuid: uuid, Name: "someName", Email: "email@email.com"}, nil
 			}
 			get(ts, "random", w)
 		}))
@@ -81,9 +81,9 @@ func TestGet(t *testing.T) {
 	})
 	t.Run("Should handle error on failed user retrieve from db", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
-			ts.GetUserFunc = func(uuid string) (*data.User, error) {
-				return nil, errors.New("random error")
+			ts := testUserService{}
+			ts.GetUserFunc = func(uuid string) (data.User, error) {
+				return data.User{}, errors.New("random error")
 			}
 			get(ts, "random", w)
 		}))
@@ -122,8 +122,8 @@ func TestGet(t *testing.T) {
 func TestPost(t *testing.T) {
 	t.Run("Should create user", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
-			ts.CreateFunc = func(user *data.User) error {
+			ts := testUserService{}
+			ts.CreateFunc = func(user data.User) error {
 				return nil
 			}
 			create(ts, w, r)
@@ -167,8 +167,8 @@ func TestPost(t *testing.T) {
 
 	t.Run("Should return error on user creation fail in db", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
-			ts.CreateFunc = func(user *data.User) error {
+			ts := testUserService{}
+			ts.CreateFunc = func(user data.User) error {
 				return errors.New("random")
 			}
 			create(ts, w, r)
@@ -213,8 +213,8 @@ func TestPost(t *testing.T) {
 
 	t.Run("Should return proper error when body decode fail", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
-			ts.CreateFunc = func(user *data.User) error {
+			ts := testUserService{}
+			ts.CreateFunc = func(user data.User) error {
 				return nil
 			}
 			create(ts, w, r)
@@ -255,7 +255,7 @@ func TestPost(t *testing.T) {
 func TestPut(t *testing.T) {
 	t.Run("Should not update user when not authorized", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
+			ts := testUserService{}
 			update(ts, "", w, r)
 		}))
 		defer server.Close()
@@ -296,7 +296,7 @@ func TestPut(t *testing.T) {
 
 	t.Run("Should return error when body is not valid json", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
+			ts := testUserService{}
 			update(ts, "not empty", w, r)
 		}))
 		defer server.Close()
@@ -337,9 +337,9 @@ func TestPut(t *testing.T) {
 
 	t.Run("Should return error when requested user is not in db", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
-			ts.GetUserFunc = func(uuid string) (*data.User, error) {
-				return nil, errors.New("error during retrieving user from db")
+			ts := testUserService{}
+			ts.GetUserFunc = func(uuid string) (data.User, error) {
+				return data.User{}, errors.New("error during retrieving user from db")
 			}
 			update(ts, "not empty", w, r)
 		}))
@@ -384,14 +384,14 @@ func TestPut(t *testing.T) {
 	})
 	t.Run("Should return proper error when updating name and email failed", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
-			ts.GetUserFunc = func(uuid string) (*data.User, error) {
-				return &data.User{Uuid: uuid, Name: "nameToUpdate", Email: "email@toupdate.com"}, nil
+			ts := testUserService{}
+			ts.GetUserFunc = func(uuid string) (data.User, error) {
+				return data.User{Uuid: uuid, Name: "nameToUpdate", Email: "email@toupdate.com"}, nil
 			}
-			ts.UpdateNameFunc = func(user *data.User) error {
+			ts.UpdateNameFunc = func(user data.User) error {
 				return errors.New("update error occured")
 			}
-			ts.UpdateEmailFunc = func(user *data.User) error {
+			ts.UpdateEmailFunc = func(user data.User) error {
 				return errors.New("update error occured")
 			}
 			update(ts, "not empty", w, r)
@@ -444,14 +444,14 @@ func TestPut(t *testing.T) {
 
 	t.Run("Should return proper error when updating name failed", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
-			ts.GetUserFunc = func(uuid string) (*data.User, error) {
-				return &data.User{Uuid: uuid, Name: "nameToUpdate", Email: "email@toupdate.com"}, nil
+			ts := testUserService{}
+			ts.GetUserFunc = func(uuid string) (data.User, error) {
+				return data.User{Uuid: uuid, Name: "nameToUpdate", Email: "email@toupdate.com"}, nil
 			}
-			ts.UpdateNameFunc = func(user *data.User) error {
+			ts.UpdateNameFunc = func(user data.User) error {
 				return errors.New("update error occured")
 			}
-			ts.UpdateEmailFunc = func(user *data.User) error {
+			ts.UpdateEmailFunc = func(user data.User) error {
 				return nil
 			}
 			update(ts, "not empty", w, r)
@@ -498,14 +498,14 @@ func TestPut(t *testing.T) {
 
 	t.Run("Should return proper error when updating email failed", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
-			ts.GetUserFunc = func(uuid string) (*data.User, error) {
-				return &data.User{Uuid: uuid, Name: "nameToUpdate", Email: "email@toupdate.com"}, nil
+			ts := testUserService{}
+			ts.GetUserFunc = func(uuid string) (data.User, error) {
+				return data.User{Uuid: uuid, Name: "nameToUpdate", Email: "email@toupdate.com"}, nil
 			}
-			ts.UpdateNameFunc = func(user *data.User) error {
+			ts.UpdateNameFunc = func(user data.User) error {
 				return nil
 			}
-			ts.UpdateEmailFunc = func(user *data.User) error {
+			ts.UpdateEmailFunc = func(user data.User) error {
 				return errors.New("update error occured")
 			}
 			update(ts, "not empty", w, r)
@@ -552,15 +552,15 @@ func TestPut(t *testing.T) {
 
 	t.Run("Should update user name and email", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ts := &testUserService{}
-			ts.GetUserFunc = func(uuid string) (*data.User, error) {
-				return &data.User{Uuid: uuid, Name: "nameToUpdate", Email: "email@toupdate.com"}, nil
+			ts := testUserService{}
+			ts.GetUserFunc = func(uuid string) (data.User, error) {
+				return data.User{Uuid: uuid, Name: "nameToUpdate", Email: "email@toupdate.com"}, nil
 			}
-			ts.UpdateNameFunc = func(user *data.User) error {
+			ts.UpdateNameFunc = func(user data.User) error {
 				user.Name = "othername"
 				return nil
 			}
-			ts.UpdateEmailFunc = func(user *data.User) error {
+			ts.UpdateEmailFunc = func(user data.User) error {
 				user.Email = "otheremail"
 				return nil
 			}

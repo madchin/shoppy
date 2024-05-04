@@ -16,16 +16,17 @@ var phonesColumns = []*sqlmock.Column{
 
 func TestGetPhones(t *testing.T) {
 	db, mock, err := sqlmock.New()
+	phoneRepo := NewPhoneRepository(db)
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	defer db.Close()
 	t.Run("Should get 2 phones", func(t *testing.T) {
 		uuid := uuid.NewString()
-		phone1 := &Phone{Uuid: uuid, Number: "123123123", Id: 1}
-		phone2 := &Phone{Uuid: uuid, Number: "234234234", Id: 2}
+		phone1 := Phone{Uuid: uuid, Number: "123123123", Id: 1}
+		phone2 := Phone{Uuid: uuid, Number: "234234234", Id: 2}
 		mock.ExpectQuery(regexp.QuoteMeta("SELECT id, number FROM Phones WHERE uuid=?")).WithArgs(uuid).WillReturnRows(sqlmock.NewRowsWithColumnDefinition(phonesColumns...).AddRow(phone1.Uuid, phone1.Id, phone1.Number).AddRow(phone2.Uuid, phone2.Id, phone2.Number))
-		phones, err := GetPhones(db, uuid)
+		phones, err := phoneRepo.GetPhones(uuid)
 		if err != nil {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}
@@ -55,7 +56,7 @@ func TestGetPhones(t *testing.T) {
 		}
 	})
 	t.Run("Should not get phone when uuid is empty", func(t *testing.T) {
-		_, err := GetPhones(db, "")
+		_, err := phoneRepo.GetPhones("")
 		if err != err.(ErrMissingUuid) {
 			t.Fatalf("An unexpected error occured, actual error: %v", err)
 		}
@@ -64,23 +65,25 @@ func TestGetPhones(t *testing.T) {
 
 func TestCreatePhone(t *testing.T) {
 	db, mock, err := sqlmock.New()
+	phoneRepo := NewPhoneRepository(db)
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	defer db.Close()
 
 	t.Run("Should NOT create phone when uuid is empty", func(t *testing.T) {
-		p := &Phone{Number: "123123123"}
-		err := p.Create(db)
+		p := Phone{Number: "123123123"}
+		err := phoneRepo.Create(p)
 		if err != err.(ErrMissingUuid) {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}
 	})
 
 	t.Run("Should create phone", func(t *testing.T) {
-		p := &Phone{Uuid: uuid.NewString(), Number: "12313223"}
+		p := Phone{Uuid: uuid.NewString(), Number: "12313223"}
+		phoneRepo := NewPhoneRepository(db)
 		mock.ExpectExec(regexp.QuoteMeta("INSERT INTO Phones (uuid,number) VALUES (?,?)")).WithArgs(p.Uuid, p.Number).WillReturnResult(sqlmock.NewResult(1, 1))
-		err := p.Create(db)
+		err := phoneRepo.Create(p)
 		if err != nil {
 			t.Fatalf("An unexpected error occured when creating phone number, actual err: %v", err)
 		}
@@ -92,15 +95,16 @@ func TestCreatePhone(t *testing.T) {
 
 func TestUpdateNumber(t *testing.T) {
 	db, mock, err := sqlmock.New()
+	phoneRepo := NewPhoneRepository(db)
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	defer db.Close()
 
 	t.Run("Should update number", func(t *testing.T) {
-		p := &Phone{Uuid: uuid.NewString(), Number: "12313223"}
+		p := Phone{Uuid: uuid.NewString(), Number: "12313223"}
 		mock.ExpectExec(regexp.QuoteMeta("UPDATE Phones SET number=? WHERE uuid=?")).WithArgs(p.Number, p.Uuid).WillReturnResult(sqlmock.NewResult(0, 1))
-		err := p.Update(db)
+		err := phoneRepo.Update(p)
 
 		if err != nil {
 			t.Fatalf("An unexpected error occured when updating phone number, actual err: %v", err)
@@ -111,15 +115,15 @@ func TestUpdateNumber(t *testing.T) {
 	})
 
 	t.Run("Should NOT update number when number is empty", func(t *testing.T) {
-		p := &Phone{Uuid: uuid.NewString()}
-		err := p.Update(db)
+		p := Phone{Uuid: uuid.NewString()}
+		err := phoneRepo.Update(p)
 		if err != err.(ErrMissingPhoneNumber) {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}
 	})
 	t.Run("Should NOT update number when uuid is empty", func(t *testing.T) {
-		p := &Phone{Number: "123132123"}
-		err := p.Update(db)
+		p := Phone{Number: "123132123"}
+		err := phoneRepo.Update(p)
 		if err != err.(ErrMissingUuid) {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}
@@ -128,15 +132,16 @@ func TestUpdateNumber(t *testing.T) {
 
 func TestDeleteNumber(t *testing.T) {
 	db, mock, err := sqlmock.New()
+	phoneRepo := NewPhoneRepository(db)
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	defer db.Close()
 
 	t.Run("Should delete number", func(t *testing.T) {
-		p := &Phone{Uuid: uuid.NewString(), Number: "12313223"}
+		p := Phone{Uuid: uuid.NewString(), Number: "12313223"}
 		mock.ExpectExec(regexp.QuoteMeta("DELETE FROM Phones WHERE uuid=? AND number=?")).WithArgs(p.Uuid, p.Number).WillReturnResult(sqlmock.NewResult(0, 1))
-		err := p.Delete(db)
+		err := phoneRepo.Delete(p)
 		if err != nil {
 			t.Fatalf("An unexpected error occured when creating phone number, actual err: %v", err)
 		}
@@ -145,15 +150,16 @@ func TestDeleteNumber(t *testing.T) {
 		}
 	})
 	t.Run("Should NOT delete number when number is empty", func(t *testing.T) {
-		p := &Phone{Uuid: uuid.NewString()}
-		err := p.Delete(db)
+		p := Phone{Uuid: uuid.NewString()}
+		phoneRepo := NewPhoneRepository(db)
+		err := phoneRepo.Delete(p)
 		if err != err.(ErrMissingPhoneNumber) {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}
 	})
 	t.Run("Should NOT delete number when uuid is empty", func(t *testing.T) {
-		p := &Phone{Number: "123132123"}
-		err := p.Delete(db)
+		p := Phone{Number: "123132123"}
+		err := phoneRepo.Delete(p)
 		if err != err.(ErrMissingUuid) {
 			t.Fatalf("An unexpected error occured, actual: %v", err)
 		}

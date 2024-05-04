@@ -60,7 +60,7 @@ func TestCreateUser(t *testing.T) {
 	uuid := uuid.New().String()
 
 	t.Run("should create user", func(t *testing.T) {
-		user := &User{Uuid: uuid, Name: "randomName", Email: "email@email.com"}
+		user := User{Uuid: uuid, Name: "randomName", Email: "email@email.com"}
 		mock.ExpectExec(regexp.QuoteMeta("INSERT INTO Users (uuid, name, email) VALUES (?, ?, ?)")).WithArgs(user.Uuid, user.Name, user.Email).WillReturnResult(sqlmock.NewResult(0, 1))
 		err = userRepo.Create(user)
 		if err != nil {
@@ -72,7 +72,7 @@ func TestCreateUser(t *testing.T) {
 	})
 
 	t.Run("should NOT create when user email is empty", func(t *testing.T) {
-		user := &User{Uuid: uuid, Name: "randomName"}
+		user := User{Uuid: uuid, Name: "randomName"}
 		err = userRepo.Create(user)
 		if err != err.(ErrEmptyEmail) {
 			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))
@@ -80,7 +80,7 @@ func TestCreateUser(t *testing.T) {
 	})
 
 	t.Run("Should create user when uuid is empty", func(t *testing.T) {
-		user := &User{Name: "randomName", Email: "email@email.com"}
+		user := User{Name: "randomName", Email: "email@email.com"}
 		mock.ExpectExec(regexp.QuoteMeta("INSERT INTO Users (uuid, name, email) VALUES (?, ?, ?)")).WithArgs(sqlmock.AnyArg(), user.Name, user.Email).WillReturnResult(sqlmock.NewResult(0, 1))
 		err = userRepo.Create(user)
 		if err != nil {
@@ -102,7 +102,7 @@ func TestUpdateName(t *testing.T) {
 	defer db.Close()
 	t.Run("Should update user name", func(t *testing.T) {
 		uuid := uuid.New().String()
-		user := &User{Uuid: uuid, Name: "randomName", Email: "email@email.com"}
+		user := User{Uuid: uuid, Name: "randomName", Email: "email@email.com"}
 		sqlmock.NewRowsWithColumnDefinition(UserColumns...).AddRow(user.Uuid, user.Name, user.Email)
 		updateName := "updatedName"
 		user.Name = updateName
@@ -121,7 +121,7 @@ func TestUpdateName(t *testing.T) {
 	})
 
 	t.Run("Should NOT update user name when user uuid is empty", func(t *testing.T) {
-		user := &User{Name: "randomName", Email: "email@email.com"}
+		user := User{Name: "randomName", Email: "email@email.com"}
 		err = userRepo.UpdateName(user)
 		if err != err.(ErrMissingUuid) {
 			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))
@@ -139,7 +139,7 @@ func TestUpdateEmail(t *testing.T) {
 
 	t.Run("Should update email", func(t *testing.T) {
 		uuid := uuid.New().String()
-		user := &User{Uuid: uuid, Name: "randomName", Email: "email@email.com"}
+		user := User{Uuid: uuid, Name: "randomName", Email: "email@email.com"}
 		mock.ExpectExec(regexp.QuoteMeta("UPDATE Users SET email=? WHERE uuid=?")).WithArgs(user.Email, user.Uuid).WillReturnResult(sqlmock.NewResult(0, 1))
 		err = userRepo.UpdateEmail(user)
 		if err != nil {
@@ -151,7 +151,7 @@ func TestUpdateEmail(t *testing.T) {
 	})
 
 	t.Run("Should NOT update user email when user uuid is empty", func(t *testing.T) {
-		user := &User{Name: "randomName", Email: "email@email.com"}
+		user := User{Name: "randomName", Email: "email@email.com"}
 		err = userRepo.UpdateEmail(user)
 		if err != err.(ErrMissingUuid) {
 			t.Fatalf(fmt.Sprintf("An error different than expected occured, actual error: %v", err))

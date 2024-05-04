@@ -13,16 +13,17 @@ import (
 var REQUIRED_ENVS = []string{"DB_USER", "DB_PASS", "DB_HOST", "DB_PORT", "DB_NAME"}
 
 func InitStore() (*sql.DB, error) {
+	errMissingEnvs := &data.ErrMissingEnv{}
 	envs := make(map[string]string, len(REQUIRED_ENVS))
 	for _, key := range REQUIRED_ENVS {
 		if value, ok := os.LookupEnv(key); ok {
 			envs[key] = value
 			continue
 		}
-		data.ErrMissingEnv.Add(key)
+		errMissingEnvs.Add(key)
 	}
-	if len(data.ErrMissingEnv.Keys) >= 1 {
-		return nil, data.ErrMissingEnv
+	if len(errMissingEnvs.Keys) >= 1 {
+		return nil, *errMissingEnvs
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", envs["DB_USER"], envs["DB_PASS"], envs["DB_HOST"], envs["DB_PORT"], envs["DB_NAME"])

@@ -4,18 +4,26 @@ import (
 	"database/sql"
 )
 
-func GetPhones(db *sql.DB, uuid string) (Phones, error) {
+type phoneRepository struct {
+	db *sql.DB
+}
+
+func NewPhoneRepository(db *sql.DB) *phoneRepository {
+	return &phoneRepository{db: db}
+}
+
+func (repo *phoneRepository) GetPhones(uuid string) (Phones, error) {
 	if uuid == "" {
 		return nil, ErrMissingUuid{}
 	}
 	var phones Phones
-	rows, err := db.Query("SELECT id, number FROM Phones WHERE uuid=?", uuid)
+	rows, err := repo.db.Query("SELECT id, number FROM Phones WHERE uuid=?", uuid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		phone := &Phone{}
+		phone := Phone{}
 		if err := rows.Scan(&phone.Uuid, &phone.Id, &phone.Number); err != nil {
 			return nil, err
 		}
@@ -28,39 +36,39 @@ func GetPhones(db *sql.DB, uuid string) (Phones, error) {
 	return phones, nil
 }
 
-func (p *Phone) Create(db *sql.DB) error {
-	if p.Uuid == "" {
+func (repo *phoneRepository) Create(phone Phone) error {
+	if phone.Uuid == "" {
 		return ErrMissingUuid{}
 	}
-	_, err := db.Exec("INSERT INTO Phones (uuid,number) VALUES (?,?)", p.Uuid, p.Number)
+	_, err := repo.db.Exec("INSERT INTO Phones (uuid,number) VALUES (?,?)", phone.Uuid, phone.Number)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *Phone) Update(db *sql.DB) error {
-	if p.Uuid == "" {
+func (repo *phoneRepository) Update(phone Phone) error {
+	if phone.Uuid == "" {
 		return ErrMissingUuid{}
 	}
-	if p.Number == "" {
-		return ErrMissingPhoneNumber{}
+	if phone.Number == "" {
+		return ErrMissingPhoneNumber{phone}
 	}
-	_, err := db.Exec("UPDATE Phones SET number=? WHERE uuid=?", p.Number, p.Uuid)
+	_, err := repo.db.Exec("UPDATE Phones SET number=? WHERE uuid=?", phone.Number, phone.Uuid)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *Phone) Delete(db *sql.DB) error {
-	if p.Uuid == "" {
+func (repo *phoneRepository) Delete(phone Phone) error {
+	if phone.Uuid == "" {
 		return ErrMissingUuid{}
 	}
-	if p.Number == "" {
-		return ErrMissingPhoneNumber{phone: p}
+	if phone.Number == "" {
+		return ErrMissingPhoneNumber{phone}
 	}
-	_, err := db.Exec("DELETE FROM Phones WHERE uuid=? AND number=?", p.Uuid, p.Number)
+	_, err := repo.db.Exec("DELETE FROM Phones WHERE uuid=? AND number=?", phone.Uuid, phone.Number)
 	if err != nil {
 		return err
 	}

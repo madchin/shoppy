@@ -8,10 +8,10 @@ import (
 )
 
 type userService interface {
-	GetUser(uuid string) (*data.User, error)
-	Create(user *data.User) error
-	UpdateName(user *data.User) error
-	UpdateEmail(user *data.User) error
+	GetUser(uuid string) (data.User, error)
+	Create(user data.User) error
+	UpdateName(user data.User) error
+	UpdateEmail(user data.User) error
 }
 
 func get(userService userService, uuid string, w http.ResponseWriter) {
@@ -34,7 +34,7 @@ func create(userService userService, w http.ResponseWriter, r *http.Request) {
 		ErrorMsg(w, http.StatusBadRequest, GenericError.Message)
 		return
 	}
-	if err := userService.Create(user); err != nil {
+	if err := userService.Create(*user); err != nil {
 		ErrorMsg(w, http.StatusBadRequest, "Error occured during creating user")
 		return
 	}

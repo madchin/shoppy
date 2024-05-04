@@ -29,7 +29,7 @@ type Phone struct {
 	Number string `json:"number"`
 }
 
-type Phones []*Phone
+type Phones []Phone
 
 type Product struct {
 	Id    int     `json:"id"`
