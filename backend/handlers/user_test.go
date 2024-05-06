@@ -55,7 +55,8 @@ func TestGet(t *testing.T) {
 			ts.GetUserFunc = func(uuid string) (data.User, error) {
 				return data.User{Uuid: uuid, Name: "someName", Email: "email@email.com"}, nil
 			}
-			get(ts, "random", w)
+			user := NewUser(ts)
+			user.get("random", w)
 		}))
 		defer server.Close()
 		res, err := http.Get(server.URL)
@@ -82,10 +83,11 @@ func TestGet(t *testing.T) {
 	t.Run("Should handle error on failed user retrieve from db", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ts := testUserService{}
+			user := NewUser(ts)
 			ts.GetUserFunc = func(uuid string) (data.User, error) {
 				return data.User{}, errors.New("random error")
 			}
-			get(ts, "random", w)
+			user.get("random", w)
 		}))
 		defer server.Close()
 		res, err := http.Get(server.URL)
@@ -126,7 +128,8 @@ func TestPost(t *testing.T) {
 			ts.CreateFunc = func(user data.User) error {
 				return nil
 			}
-			create(ts, w, r)
+			user := NewUser(ts)
+			user.create(w, r)
 		}))
 		defer server.Close()
 		mockUser := &data.User{Name: "eloelo", Email: "email@email.com"}
@@ -171,7 +174,8 @@ func TestPost(t *testing.T) {
 			ts.CreateFunc = func(user data.User) error {
 				return errors.New("random")
 			}
-			create(ts, w, r)
+			user := NewUser(ts)
+			user.create(w, r)
 		}))
 		defer server.Close()
 		mockUser := &data.User{Name: "eloelo", Email: "email@email.com"}
@@ -217,7 +221,8 @@ func TestPost(t *testing.T) {
 			ts.CreateFunc = func(user data.User) error {
 				return nil
 			}
-			create(ts, w, r)
+			user := NewUser(ts)
+			user.create(w, r)
 		}))
 		defer server.Close()
 		res, err := http.Post(server.URL, "application/json", bytes.NewReader([]byte{0}))
@@ -256,7 +261,8 @@ func TestPut(t *testing.T) {
 	t.Run("Should not update user when not authorized", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ts := testUserService{}
-			update(ts, "", w, r)
+			user := NewUser(ts)
+			user.update("", w, r)
 		}))
 		defer server.Close()
 		client := server.Client()
@@ -297,7 +303,8 @@ func TestPut(t *testing.T) {
 	t.Run("Should return error when body is not valid json", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ts := testUserService{}
-			update(ts, "not empty", w, r)
+			user := NewUser(ts)
+			user.update("not empty", w, r)
 		}))
 		defer server.Close()
 		client := server.Client()
@@ -341,7 +348,8 @@ func TestPut(t *testing.T) {
 			ts.GetUserFunc = func(uuid string) (data.User, error) {
 				return data.User{}, errors.New("error during retrieving user from db")
 			}
-			update(ts, "not empty", w, r)
+			user := NewUser(ts)
+			user.update("not empty", w, r)
 		}))
 		defer server.Close()
 		mockUser, err := json.Marshal(&data.User{})
@@ -394,7 +402,8 @@ func TestPut(t *testing.T) {
 			ts.UpdateEmailFunc = func(user data.User) error {
 				return errors.New("update error occured")
 			}
-			update(ts, "not empty", w, r)
+			user := NewUser(ts)
+			user.update("not empty", w, r)
 		}))
 		defer server.Close()
 		mockUser, err := json.Marshal(&data.User{Name: "othername", Email: "otheremail"})
@@ -454,7 +463,8 @@ func TestPut(t *testing.T) {
 			ts.UpdateEmailFunc = func(user data.User) error {
 				return nil
 			}
-			update(ts, "not empty", w, r)
+			user := NewUser(ts)
+			user.update("not empty", w, r)
 		}))
 		defer server.Close()
 		mockUser, err := json.Marshal(&data.User{Name: "othername", Email: "otheremail"})
@@ -508,7 +518,8 @@ func TestPut(t *testing.T) {
 			ts.UpdateEmailFunc = func(user data.User) error {
 				return errors.New("update error occured")
 			}
-			update(ts, "not empty", w, r)
+			user := NewUser(ts)
+			user.update("not empty", w, r)
 		}))
 		defer server.Close()
 		mockUser, err := json.Marshal(&data.User{Name: "othername", Email: "otheremail"})
@@ -562,7 +573,8 @@ func TestPut(t *testing.T) {
 			ts.UpdateEmailFunc = func(user data.User) error {
 				return nil
 			}
-			update(ts, "not empty", w, r)
+			user := NewUser(ts)
+			user.update("not empty", w, r)
 		}))
 		defer server.Close()
 		mockUser, err := json.Marshal(&data.User{Name: "othername", Email: "otheremail"})

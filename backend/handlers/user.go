@@ -2,6 +2,7 @@ package handler
 
 import (
 	"backend/data"
+	"backend/middleware"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -14,8 +15,16 @@ type userService interface {
 	UpdateEmail(user data.User) error
 }
 
-func get(userService userService, uuid string, w http.ResponseWriter) {
-	user, err := userService.GetUser(uuid)
+type User struct {
+	service userService
+}
+
+func NewUser(service userService) User {
+	return User{service}
+}
+
+func (u User) get(uuid string, w http.ResponseWriter) {
+	user, err := u.service.GetUser(uuid)
 	if err != nil {
 		ErrorMsg(w, http.StatusBadRequest, "Unable to retrieve user")
 		return
@@ -28,13 +37,13 @@ func get(userService userService, uuid string, w http.ResponseWriter) {
 	w.Write(msg)
 }
 
-func create(userService userService, w http.ResponseWriter, r *http.Request) {
+func (u User) create(w http.ResponseWriter, r *http.Request) {
 	user := &data.User{}
 	if err := json.NewDecoder(r.Body).Decode(user); err != nil {
 		ErrorMsg(w, http.StatusBadRequest, GenericError.Message)
 		return
 	}
-	if err := userService.Create(*user); err != nil {
+	if err := u.service.Create(*user); err != nil {
 		ErrorMsg(w, http.StatusBadRequest, "Error occured during creating user")
 		return
 	}
@@ -48,7 +57,7 @@ func create(userService userService, w http.ResponseWriter, r *http.Request) {
 	w.Write(msg)
 }
 
-func update(userService userService, uuid string, w http.ResponseWriter, r *http.Request) {
+func (u User) update(uuid string, w http.ResponseWriter, r *http.Request) {
 	if uuid == "" {
 		ErrorMsg(w, http.StatusUnauthorized, "Unauthorized to perform this action")
 		return
@@ -58,7 +67,7 @@ func update(userService userService, uuid string, w http.ResponseWriter, r *http
 		ErrorMsg(w, http.StatusBadRequest, GenericError.Message)
 		return
 	}
-	retrievedUser, err := userService.GetUser(uuid)
+	retrievedUser, err := u.service.GetUser(uuid)
 	if err != nil {
 		ErrorMsg(w, http.StatusBadRequest, "User with provided id not exists")
 		return
@@ -67,7 +76,7 @@ func update(userService userService, uuid string, w http.ResponseWriter, r *http
 	errorChannel := make(chan string, 2)
 	go func(chan<- string) {
 		if retrievedUser.Name != incomingUser.Name {
-			if err = userService.UpdateName(*incomingUser); err != nil {
+			if err = u.service.UpdateName(*incomingUser); err != nil {
 				errorChannel <- "Updating name failed"
 				return
 			}
@@ -76,7 +85,7 @@ func update(userService userService, uuid string, w http.ResponseWriter, r *http
 	}(errorChannel)
 	go func(chan<- string) {
 		if retrievedUser.Email != incomingUser.Email {
-			if err = userService.UpdateEmail(*incomingUser); err != nil {
+			if err = u.service.UpdateEmail(*incomingUser); err != nil {
 				errorChannel <- "Updating email failed"
 				return
 			}
@@ -102,16 +111,18 @@ func update(userService userService, uuid string, w http.ResponseWriter, r *http
 	w.Write(msg)
 }
 
-func User(service userService, uuid string, w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	switch r.Method {
-	case "POST":
-		create(service, w, r)
-	case "GET":
-		get(service, uuid, w)
-	case "PUT":
-		update(service, uuid, w, r)
-	default:
-		ErrorMsg(w, http.StatusMethodNotAllowed, "Method not allowed")
-	}
+func (u User) Build() middleware.AuthMiddleware {
+	return middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request, uuid string) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.Method {
+		case "POST":
+			u.create(w, r)
+		case "GET":
+			u.get(uuid, w)
+		case "PUT":
+			u.update(uuid, w, r)
+		default:
+			ErrorMsg(w, http.StatusMethodNotAllowed, "Method not allowed")
+		}
+	})
 }
