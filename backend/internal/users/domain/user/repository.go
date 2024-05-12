@@ -8,7 +8,6 @@ type Repository interface {
 	) error
 	Get(
 		uuid string,
-		getFn func(User) (User, error),
 	) (User, error)
 	UpdateName(
 		uuid string,

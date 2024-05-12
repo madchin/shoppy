@@ -12,6 +12,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -28,8 +30,11 @@ func main() {
 	}
 	userRepo := data.NewUserRepository(DB)
 	userHandler := handler.NewUser(userRepo).Build()
+
+	logger := logrus.New()
+
 	db2, _ := adapters.NewDatabase()
-	app := app.NewApplication(adapters.NewUserRepository(db2))
+	app := app.NewApplication(adapters.NewUserRepository(db2), logrus.NewEntry(logger))
 	httpServer := ports.NewHttpServer(app)
 	http.HandleFunc("/api/v3/user", httpServer.User.Get)
 	//http.Handle("/api/user", handler.SessionMiddleware(data.NewUserRepository(DB), handler.User))

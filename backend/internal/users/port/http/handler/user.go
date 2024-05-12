@@ -16,7 +16,7 @@ func NewUser(app app.Application) User {
 }
 
 func (u User) Get(w http.ResponseWriter, r *http.Request) {
-	queryUser, err := u.app.Query.RetrieveUser.Execute(query.RetrieveUser{Uuid: "elo"})
+	queryUser, err := u.app.Query.RetrieveUser.Handle(query.RetrieveUser{Uuid: "elo"})
 	if err != nil {
 		server.ErrorResponse(w, server.HttpErrInternal)
 		return

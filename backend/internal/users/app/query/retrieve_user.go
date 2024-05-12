@@ -1,34 +1,30 @@
 package query
 
 import (
+	"backend/internal/common/decorator"
 	"backend/internal/users/domain/user"
+
+	"github.com/sirupsen/logrus"
 )
 
 type RetrieveUser struct {
 	Uuid string
 }
 
-type RetrieveUserHandler struct {
-	retrieveUserUseCase retrieveUserUseCase
-}
-type retrieveUserUseCase struct {
+type RetrieveUserHandler decorator.QueryHandler[RetrieveUser, user.User]
+
+type retrieveUserHandler struct {
 	userRepository user.Repository
 }
 
-func NewRetrieveUserHandler(repository user.Repository) RetrieveUserHandler {
-	return RetrieveUserHandler{retrieveUserUseCase{repository}}
+func NewRetrieveUserHandler(repo user.Repository, logger *logrus.Entry) RetrieveUserHandler {
+	return decorator.ApplyQueryHandler(retrieveUserHandler{userRepository: repo}, logger)
 }
 
-func (rh RetrieveUserHandler) Execute(retrieveUser RetrieveUser) (user.User, error) {
-	u, err := rh.retrieveUserUseCase.userRepository.Get(retrieveUser.Uuid, func(u user.User) (user.User, error) {
-		err := u.Validate()
-		if err != nil {
-			return user.User{}, err
-		}
-		return u, nil
-	})
+func (rh retrieveUserHandler) Handle(retrieveUser RetrieveUser) (result user.User, err error) {
+	result, err = rh.userRepository.Get(retrieveUser.Uuid)
 	if err != nil {
 		return user.User{}, err
 	}
-	return u, nil
+	return result, nil
 }

@@ -15,15 +15,14 @@ type userDTO struct {
 }
 
 type UserRepository struct {
-	db   *sql.DB
-	repo user.Repository
+	db *sql.DB
 }
 
 func NewUserRepository(db *sql.DB) user.Repository {
 	return &UserRepository{db: db}
 }
 
-func (ur *UserRepository) Get(uuid string, getFn func(user.User) (user.User, error)) (user.User, error) {
+func (ur *UserRepository) Get(uuid string) (user.User, error) {
 	userDto := userDTO{}
 	err := ur.db.QueryRow("SELECT * FROM Users WHERE uuid=?", uuid).Scan(&userDto.uuid, &userDto.name, &userDto.email)
 	if err != nil {
@@ -45,28 +44,3 @@ func (ur *UserRepository) UpdateEmail(uuid string, u user.User, updateFn func(us
 func (ur *UserRepository) Delete(uuid string, deleteFn func(user.User) error) error {
 	return nil
 }
-
-// Create(
-// 	uuid string,
-// 	user User,
-// 	createFn func(User) (User, error),
-// ) error
-// Get(
-// 	uuid string,
-// 	getFn func(User) (User, error),
-// ) (User, error)
-// UpdateName(
-// 	uuid string,
-// 	user User,
-// 	updateFn func(User) (User, error),
-// ) error
-// UpdateEmail(
-// 	uuid string,
-// 	user User,
-// 	updateFn func(User) (User, error),
-// ) error
-// Delete(
-// 	uuid string,
-// 	user User,
-// 	deleteFn func(User) error,
-// ) error
