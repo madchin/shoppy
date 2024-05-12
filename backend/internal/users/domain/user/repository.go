@@ -6,21 +6,24 @@ type Repository interface {
 		user User,
 		createFn func(User) (User, error),
 	) error
+	Get(
+		uuid string,
+		getFn func(User) (User, error),
+	) (User, error)
 	UpdateName(
 		uuid string,
 		user User,
 		updateFn func(User) (User, error),
-	)
+	) error
 	UpdateEmail(
 		uuid string,
 		user User,
 		updateFn func(User) (User, error),
-	)
+	) error
 	Delete(
 		uuid string,
-		user User,
 		deleteFn func(User) error,
-	)
+	) error
 }
 
 type DetailRepository interface {
@@ -28,12 +31,12 @@ type DetailRepository interface {
 		userUuid string,
 		name string,
 		updateFn func(UserDetail) (UserDetail, error),
-	)
+	) error
 	UpdateLastName(
 		userUuid string,
 		name string,
 		updateFn func(UserDetail) (UserDetail, error),
-	)
+	) error
 }
 
 type PhoneRepository interface {
@@ -41,5 +44,5 @@ type PhoneRepository interface {
 		userUuid string,
 		number int,
 		updateFn func(Phone) (Phone, error),
-	)
+	) error
 }

@@ -4,6 +4,9 @@ import (
 	"backend/data"
 	db "backend/db"
 	handler "backend/handlers"
+	"backend/internal/users/adapters"
+	"backend/internal/users/app"
+	ports "backend/internal/users/port/http"
 	"backend/middleware"
 	"fmt"
 	"log"
@@ -25,6 +28,10 @@ func main() {
 	}
 	userRepo := data.NewUserRepository(DB)
 	userHandler := handler.NewUser(userRepo).Build()
+	db2, _ := adapters.NewDatabase()
+	app := app.NewApplication(adapters.NewUserRepository(db2))
+	httpServer := ports.NewHttpServer(app)
+	http.HandleFunc("/api/v3/user", httpServer.User.Get)
 	//http.Handle("/api/user", handler.SessionMiddleware(data.NewUserRepository(DB), handler.User))
 	//http.Handle("/api/v2/user", middleware.AuthMiddleware(handler.User(data.NewUserRepository(DB))))
 	http.Handle("/api/v2/user", middleware.AuthMiddleware(userHandler))

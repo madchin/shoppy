@@ -1,11 +1,10 @@
 package user
 
 import (
+	"backend/internal/common/domain"
 	"errors"
 	"fmt"
 	"regexp"
-
-	cerr "backend/internal/common/error"
 
 	"github.com/hashicorp/go-multierror"
 )
@@ -38,7 +37,7 @@ func (p Phone) validateNumber() (err error) {
 	}
 	ok, rerr := regexp.MatchString(numberRegex, strNumber)
 	if rerr != nil {
-		err = multierror.Append(err, cerr.ErrInternal)
+		err = multierror.Append(err, domain.ErrInternal)
 	}
 	if !ok {
 		err = multierror.Append(err, errNumberNotMatch)

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"regexp"
 
-	cerr "backend/internal/common/error"
+	"backend/internal/common/domain"
 
 	"github.com/hashicorp/go-multierror"
 )
@@ -27,6 +27,10 @@ var errNameMaxLength = errors.New("User name is too long")
 var errEmailEmpty = errors.New("User email is empty")
 var errEmailMaxLength = errors.New("User email is too long")
 var errEmailNotMatch = errors.New("User email have wrong format")
+
+func New(name string, email string) User {
+	return User{name: name, email: email}
+}
 
 func (u User) Validate() error {
 	var err error
@@ -57,7 +61,7 @@ func (u User) validateEmail() (err error) {
 	}
 	ok, rerr := regexp.MatchString(emailRegex, u.email)
 	if rerr != nil {
-		err = multierror.Append(err, cerr.ErrInternal)
+		err = multierror.Append(err, domain.ErrInternal)
 	}
 	if !ok {
 		err = multierror.Append(err, errEmailNotMatch)

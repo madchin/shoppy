@@ -1,14 +1,28 @@
 package app
 
+import (
+	"backend/internal/users/app/query"
+	"backend/internal/users/domain/user"
+)
+
 //usecases
 
-type Commands struct {
+type Command struct {
+	CreateUser func()
 }
 
-type Queries struct {
+type Query struct {
+	RetrieveUser query.RetrieveUserHandler
 }
 
 type Application struct {
-	Commands Commands
-	Queries  Queries
+	Command Command
+	Query   Query
+}
+
+func NewApplication(userRepository user.Repository) Application {
+	return Application{
+		Command: Command{},
+		Query:   Query{RetrieveUser: query.NewRetrieveUserHandler(userRepository)},
+	}
 }
