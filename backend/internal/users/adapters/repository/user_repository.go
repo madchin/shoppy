@@ -34,13 +34,13 @@ func (ur *UserRepository) Get(uuid string) (user.User, error) {
 func (ur *UserRepository) Create(uuid string, u user.User, createFn func(user.User) (user.User, error)) error {
 	return nil
 }
-func (ur *UserRepository) UpdateName(uuid string, u user.User, updateFn func(user.User) (user.User, error)) error {
+func (ur *UserRepository) UpdateName(uuid string, name string, updateFn func(user.User) (user.User, error)) error {
 	return nil
 }
-func (ur *UserRepository) UpdateEmail(uuid string, u user.User, updateFn func(user.User) (user.User, error)) error {
+func (ur *UserRepository) UpdateEmail(uuid string, email string, updateFn func(user.User) (user.User, error)) error {
 	return nil
 }
 
-func (ur *UserRepository) Delete(uuid string, deleteFn func(user.User) error) error {
+func (ur *UserRepository) Delete(uuid string) error {
 	return nil
 }

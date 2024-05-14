@@ -4,7 +4,7 @@ import (
 	"backend/data"
 	db "backend/db"
 	handler "backend/handlers"
-	"backend/internal/users/adapters"
+	adapters "backend/internal/users/adapters/repository"
 	"backend/internal/users/app"
 	ports "backend/internal/users/port/http"
 	"backend/middleware"

@@ -6,23 +6,18 @@ type Repository interface {
 		user User,
 		createFn func(User) (User, error),
 	) error
-	Get(
-		uuid string,
-	) (User, error)
+	Get(uuid string) (User, error)
 	UpdateName(
 		uuid string,
-		user User,
+		name string,
 		updateFn func(User) (User, error),
 	) error
 	UpdateEmail(
 		uuid string,
-		user User,
+		email string,
 		updateFn func(User) (User, error),
 	) error
-	Delete(
-		uuid string,
-		deleteFn func(User) error,
-	) error
+	Delete(uuid string) error
 }
 
 type DetailRepository interface {

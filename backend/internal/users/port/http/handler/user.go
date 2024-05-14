@@ -12,14 +12,14 @@ type User struct {
 }
 
 func NewUser(app app.Application) User {
-	return User{app: app}
+	return User{app}
 }
 
 func (u User) Get(w http.ResponseWriter, r *http.Request) {
-	queryUser, err := u.app.Query.RetrieveUser.Handle(query.RetrieveUser{Uuid: "elo"})
+	retrievedUser, err := u.app.Query.RetrieveUser.Handle(query.NewRetrieveUser("rand"))
 	if err != nil {
 		server.ErrorResponse(w, server.HttpErrInternal)
 		return
 	}
-	server.SuccessResponse(w, queryUser, http.StatusOK)
+	server.SuccessResponse(w, retrievedUser, http.StatusOK)
 }

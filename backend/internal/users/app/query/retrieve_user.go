@@ -7,22 +7,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type RetrieveUser struct {
-	Uuid string
+type retrieveUser struct {
+	uuid string
 }
 
-type RetrieveUserHandler decorator.QueryHandler[RetrieveUser, user.User]
+type RetrieveUserHandler decorator.QueryHandler[retrieveUser, user.User]
 
 type retrieveUserHandler struct {
-	userRepository user.Repository
+	repo user.Repository
+}
+
+func NewRetrieveUser(uuid string) retrieveUser {
+	return retrieveUser{uuid}
 }
 
 func NewRetrieveUserHandler(repo user.Repository, logger *logrus.Entry) RetrieveUserHandler {
-	return decorator.ApplyQueryHandler(retrieveUserHandler{userRepository: repo}, logger)
+	return decorator.ApplyQueryHandler(retrieveUserHandler{repo}, logger)
 }
 
-func (rh retrieveUserHandler) Handle(retrieveUser RetrieveUser) (result user.User, err error) {
-	result, err = rh.userRepository.Get(retrieveUser.Uuid)
+func (rh retrieveUserHandler) Handle(retrieveUser retrieveUser) (result user.User, err error) {
+	result, err = rh.repo.Get(retrieveUser.uuid)
 	if err != nil {
 		return user.User{}, err
 	}

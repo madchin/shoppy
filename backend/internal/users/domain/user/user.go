@@ -34,12 +34,12 @@ func New(name string, email string) User {
 
 func (u User) Validate() error {
 	var err error
-	err = u.validateName()
-	err = multierror.Append(err, u.validateEmail())
+	err = u.ValidateName()
+	err = multierror.Append(err, u.ValidateEmail())
 	return err.(*multierror.Error).ErrorOrNil()
 }
 
-func (u User) validateName() (err error) {
+func (u User) ValidateName() (err error) {
 	if u.name == "" {
 		err = multierror.Append(err, errNameEmpty)
 	}
@@ -52,7 +52,7 @@ func (u User) validateName() (err error) {
 	return err
 }
 
-func (u User) validateEmail() (err error) {
+func (u User) ValidateEmail() (err error) {
 	if u.email == "" {
 		err = multierror.Append(err, errEmailEmpty)
 	}

@@ -1,22 +1,33 @@
 package command
 
-import "backend/internal/users/domain/user"
+import (
+	"backend/internal/common/decorator"
+	"backend/internal/users/domain/user"
+
+	"github.com/sirupsen/logrus"
+)
 
 type registerUser struct {
 	uuid string
 	user user.User
 }
 
-type registerUserUseCase struct {
-	userRepository user.Repository
+type RegisterUserHandler decorator.CommandHandler[registerUser]
+
+type registerUserHandler struct {
+	repo user.Repository
 }
 
-func NewUseCaseRegisterUser(repository user.Repository) registerUserUseCase {
-	return registerUserUseCase{userRepository: repository}
+func NewRegisterUser(uuid string, user user.User) registerUser {
+	return registerUser{uuid, user}
 }
 
-func (ru registerUserUseCase) Execute(cmd registerUser) error {
-	return ru.userRepository.Create(cmd.uuid, cmd.user, func(u user.User) (user.User, error) {
+func NewRegisterUserHandler(repo user.Repository, logger *logrus.Entry) decorator.CommandHandler[registerUser] {
+	return decorator.ApplyCommandHandler(registerUserHandler{repo}, logger)
+}
+
+func (ru registerUserHandler) Handle(cmd registerUser) error {
+	return ru.repo.Create(cmd.uuid, cmd.user, func(u user.User) (user.User, error) {
 		err := u.Validate()
 		if err != nil {
 			return user.User{}, err
