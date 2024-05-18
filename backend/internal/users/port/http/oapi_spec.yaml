@@ -1,0 +1,114 @@
+openapi: 3.1.0
+info:
+  title: User service
+  description: |
+    Provides service for user
+  version: 0.1.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      description: Retrieved / Created user
+      type: object
+      properties:
+        name:
+          type: string
+          description: User name
+        email:
+          type: string
+          description: User email      
+  responses:
+    ErrUserNotFound:
+      "404":
+        description: User with provided id has not been found
+        content:
+          type: object
+          properties:
+            description:
+              type: string
+              enum:
+              - User with provided id has not been found
+    ErrUnauthorized:
+      "401":
+        description: Access token is missing or invalid
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  enum:
+                  - Access token is missing or invalid
+    ErrInternal:
+      "5XX":
+        description: Internal error. Something unhandled happened on the server
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  enum:
+                  - Oops! Something went wrong.
+paths:
+  /user:
+    get:
+      security:
+      - bearerAuth: []
+      description: Retrieves user with {id}, id is retrieved from JWT in middleware
+      responses:
+        "200":
+          description: User successfully retrieved
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "404":
+          $ref: "#/components/responses/ErrUserNotFound"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+    post:
+      responses:
+        "201":
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+    put:
+      description: Operations for user update
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: User successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+    delete:
+      security:
+      - bearerAuth: []
+      responses:
+        "204":
+          description: User has been deleted successfully
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "404":
+          $ref: "#/components/responses/ErrUserNotFound"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
