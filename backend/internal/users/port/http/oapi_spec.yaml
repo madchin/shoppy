@@ -1,0 +1,217 @@
+openapi: "3.0.0"
+info:
+  title: User service
+  description: |
+    Provides service for user
+  version: 0.1.0
+servers:
+  - url: "{protocol}://{host}:{port}"
+    variables:
+      protocol:  
+        default: https
+        enum:
+          - http
+          - https
+      host:
+        default: localhost
+        enum:
+          - api.prod.example.com
+          - api.dev.example.com
+          - api.staging.example.com
+          - localhost
+      port:
+        default: "8090"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      description: Retrieved / Created user
+      type: object
+      properties:
+        name:
+          type: string
+          description: User name
+        email:
+          type: string
+          description: User email
+        password:
+          type: string
+          description: user password
+          writeOnly: true
+      required:
+        - name
+        - email
+    Error:
+      description: Basic error
+      type: object
+      properties:
+        description:
+          type: string
+      required:
+        - description
+  responses:
+    ErrUserNotFound:
+        description: User with provided id has not been found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+    ErrUnauthorized:
+      description: Access token is missing or invalid
+      headers:
+        WWW_Authenticate:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+              $ref: "#/components/schemas/Error"
+    ErrInternal:
+        description: Internal error. Something unhandled happened on the server
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+paths:
+  /user:
+    get:
+      security:
+      - bearerAuth: []
+      description: Retrieves user with {id}, id is retrieved from JWT in middleware
+      tags:
+        - user
+      responses:
+        "200":
+          description: User successfully retrieved
+          content:
+            application/json: 
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "404":
+          $ref: "#/components/responses/ErrUserNotFound"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+    delete:
+      security:
+      - bearerAuth: []
+      description: Delete user with {id}, id is retrieved from JWT in middleware
+      tags:
+        - user
+      responses:
+        "204":
+          description: User has been deleted successfully / uuid retrieved from JWT
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "404":
+          $ref: "#/components/responses/ErrUserNotFound"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+    post:
+      description: Create user
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Unable to create user cause it already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+  /user/update-name:
+    put:
+      description: User name update
+      tags:
+        - user
+      security:
+      - bearerAuth: []
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+            minLength: 1
+          required: true
+          description: name used for update
+      responses:
+        "200":
+          description: User name successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+  /user/update-email:
+    put:
+      description: User email update
+      tags:
+        - user
+      security:
+      - bearerAuth: []
+      parameters:
+        - in: query
+          name: email
+          schema:
+            type: string
+            minLength: 1
+          required: true
+          description: email used to update
+      responses:
+        "200":
+          description: User email successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+  /user/update-password:
+    put:
+      description: User password update
+      tags:
+        - user
+      security:
+      - bearerAuth: []
+      parameters:
+        - in: query
+          name: password
+          schema:
+            type: string
+            minLength: 6
+          required: true
+          description: password used to update
+      responses:
+        "200":
+          description: User password successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"

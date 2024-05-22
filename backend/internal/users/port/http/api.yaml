@@ -1,0 +1,6 @@
+# yaml-language-server: ...
+package: ports
+output: ../users/port/http/user_gen.go
+generate:
+  std-http-server: true
+  models: true
