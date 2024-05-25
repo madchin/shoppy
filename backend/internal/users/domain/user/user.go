@@ -3,10 +3,6 @@ package user
 import (
 	"errors"
 	"regexp"
-
-	"backend/internal/common/domain"
-
-	"github.com/hashicorp/go-multierror"
 )
 
 type User struct {
@@ -21,50 +17,39 @@ const (
 	emailMaxLength = 320
 )
 
-var errNameEmpty = errors.New("User name is empty")
-var errNameMinLength = errors.New("User name is too short")
-var errNameMaxLength = errors.New("User name is too long")
-var errEmailEmpty = errors.New("User email is empty")
-var errEmailMaxLength = errors.New("User email is too long")
-var errEmailNotMatch = errors.New("User email have wrong format")
-
 func New(name string, email string) User {
 	return User{name: name, email: email}
 }
 
-func (u User) Validate() error {
-	var err error
-	err = u.ValidateName()
-	err = multierror.Append(err, u.ValidateEmail())
-	return err.(*multierror.Error).ErrorOrNil()
+func (u User) Validate() (errs []error) {
+	errs = u.ValidateName()
+	errs = append(errs, u.ValidateEmail()...)
+	return
 }
 
-func (u User) ValidateName() (err error) {
+func (u User) ValidateName() (errs []error) {
 	if u.name == "" {
-		err = multierror.Append(err, errNameEmpty)
+		errs = append(errs, errors.New("empty-name"))
 	}
 	if len(u.name) < nameMinLength {
-		err = multierror.Append(err, errNameMinLength)
+		errs = append(errs, errors.New("short-name"))
 	}
 	if len(u.name) > nameMaxLength {
-		err = multierror.Append(err, errNameMaxLength)
+		errs = append(errs, errors.New("long-name"))
 	}
-	return err
+	return
 }
 
-func (u User) ValidateEmail() (err error) {
+func (u User) ValidateEmail() (errs []error) {
 	if u.email == "" {
-		err = multierror.Append(err, errEmailEmpty)
+		errs = append(errs, errors.New("empty-email"))
 	}
 	if len(u.email) > emailMaxLength {
-		err = multierror.Append(err, errEmailMaxLength)
+		errs = append(errs, errors.New("long-email"))
 	}
-	ok, rerr := regexp.MatchString(emailRegex, u.email)
-	if rerr != nil {
-		err = multierror.Append(err, domain.ErrInternal)
-	}
+	ok, _ := regexp.MatchString(emailRegex, u.email)
 	if !ok {
-		err = multierror.Append(err, errEmailNotMatch)
+		errs = append(errs, errors.New("match-email"))
 	}
-	return err
+	return
 }

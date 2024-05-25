@@ -1,7 +1,8 @@
 package adapters
 
 import (
-	"backend/internal/common/repository"
+	cerr "backend/internal/common/errors"
+	custom_error "backend/internal/common/errors"
 	"database/sql"
 	"fmt"
 	"os"
@@ -13,7 +14,7 @@ import (
 var REQUIRED_ENVS = []string{"DB_USER", "DB_PASS", "DB_HOST", "DB_PORT", "DB_NAME"}
 
 func NewDatabase() (*sql.DB, error) {
-	errMissingEnvs := &repository.ErrMissingEnv{}
+	errMissingEnvs := cerr.NewErrMissingEnv(custom_error.ContextError{})
 	envs := make(map[string]string, len(REQUIRED_ENVS))
 	for _, key := range REQUIRED_ENVS {
 		if value, ok := os.LookupEnv(key); ok {

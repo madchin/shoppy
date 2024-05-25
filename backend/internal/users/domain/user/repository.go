@@ -1,23 +1,25 @@
 package user
 
+import custom_error "backend/internal/common/errors"
+
 type Repository interface {
 	Create(
 		uuid string,
 		user User,
-		createFn func(User) (User, error),
-	) error
-	Get(uuid string) (User, error)
+		createFn func(User) (User, []error),
+	) custom_error.ContextError
+	Get(uuid string) (User, custom_error.ContextError)
 	UpdateName(
 		uuid string,
 		name string,
-		updateFn func(User) (User, error),
-	) error
+		updateFn func(User) (User, []error),
+	) custom_error.ContextError
 	UpdateEmail(
 		uuid string,
 		email string,
-		updateFn func(User) (User, error),
-	) error
-	Delete(uuid string) error
+		updateFn func(User) (User, []error),
+	) custom_error.ContextError
+	Delete(uuid string) custom_error.ContextError
 }
 
 type DetailRepository interface {

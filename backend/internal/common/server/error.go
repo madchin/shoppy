@@ -1,41 +1,47 @@
 package server
 
 import (
+	custom_error "backend/internal/common/errors"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
-type httpErr struct {
-	code int
-	msg  string
+type HttpError struct {
+	Type        string `json:"type"`
+	Description string `json:"description"`
 }
 
-var HttpErrInternal = httpErr{code: http.StatusInternalServerError, msg: "Oops! Something went wrong"}
-var HttpErrWrongBody = httpErr{code: http.StatusBadRequest, msg: "Request body"}
+func NewHttpError(context string, desc string) HttpError {
+	return HttpError{context, desc}
+}
 
-func ErrorResponse(w http.ResponseWriter, httpErr httpErr) {
-	w.Header().Set("Content-Type", "application/json")
-	msg, err := json.Marshal(httpErr.toJsonStruct())
-	if err != nil {
-		errorInternalJson(w)
-		return
+func ParseCustomErrToHttpErrors(customError custom_error.ContextError) []HttpError {
+	httpErrs := make([]HttpError, 0)
+	for _, cerr := range customError.Errors() {
+		httpErrs = append(httpErrs, NewHttpError(customError.Type().String(), cerr.Error()))
 	}
-	w.WriteHeader(httpErr.code)
+	return httpErrs
+}
+
+func ErrorResponse(w http.ResponseWriter, status int, err ...HttpError) {
+	w.Header().Set("Content-Type", "application/json")
+	msg, _ := json.Marshal(err)
+	w.WriteHeader(status)
 	w.Write(msg)
 }
 
-func errorInternalJson(w http.ResponseWriter) {
-	w.WriteHeader(HttpErrInternal.code)
-	w.Write([]byte(fmt.Sprintf("{code: %d, msg: %s}", HttpErrInternal.code, HttpErrInternal.msg)))
+func NotFound(w http.ResponseWriter, err ...HttpError) {
+	ErrorResponse(w, http.StatusNotFound, err...)
 }
 
-func (h httpErr) toJsonStruct() struct {
-	Code int
-	Msg  string
-} {
-	return struct {
-		Code int
-		Msg  string
-	}{h.code, h.msg}
+func Unauthorized(w http.ResponseWriter, err ...HttpError) {
+	ErrorResponse(w, http.StatusUnauthorized, err...)
+}
+
+func BadRequest(w http.ResponseWriter, err ...HttpError) {
+	ErrorResponse(w, http.StatusBadRequest, err...)
+}
+
+func Internal(w http.ResponseWriter, err ...HttpError) {
+	ErrorResponse(w, http.StatusInternalServerError, err...)
 }

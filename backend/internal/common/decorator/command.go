@@ -1,9 +1,13 @@
 package decorator
 
-import "github.com/sirupsen/logrus"
+import (
+	custom_error "backend/internal/common/errors"
+
+	"github.com/sirupsen/logrus"
+)
 
 type CommandHandler[C any] interface {
-	Handle(cmd C) error
+	Handle(cmd C) custom_error.ContextError
 }
 
 func ApplyCommandHandler[C any](base CommandHandler[C], logger *logrus.Entry) CommandHandler[C] {

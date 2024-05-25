@@ -2,6 +2,7 @@ package query
 
 import (
 	"backend/internal/common/decorator"
+	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
 
 	"github.com/sirupsen/logrus"
@@ -25,10 +26,6 @@ func NewRetrieveUserHandler(repo user.Repository, logger *logrus.Entry) Retrieve
 	return decorator.ApplyQueryHandler(retrieveUserHandler{repo}, logger)
 }
 
-func (rh retrieveUserHandler) Handle(retrieveUser retrieveUser) (result user.User, err error) {
-	result, err = rh.repo.Get(retrieveUser.uuid)
-	if err != nil {
-		return user.User{}, err
-	}
-	return result, nil
+func (rh retrieveUserHandler) Handle(retrieveUser retrieveUser) (user.User, custom_error.ContextError) {
+	return rh.repo.Get(retrieveUser.uuid)
 }

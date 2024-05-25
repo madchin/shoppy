@@ -2,6 +2,7 @@ package command
 
 import (
 	"backend/internal/common/decorator"
+	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
 
 	"github.com/sirupsen/logrus"
@@ -25,6 +26,6 @@ func NewDeleteUserHandler(repo user.Repository, logger *logrus.Entry) DeleteUser
 	return decorator.ApplyCommandHandler(deleteUserHandler{repo}, logger)
 }
 
-func (u deleteUserHandler) Handle(cmd deleteUser) error {
+func (u deleteUserHandler) Handle(cmd deleteUser) custom_error.ContextError {
 	return u.repo.Delete(cmd.uuid)
 }
