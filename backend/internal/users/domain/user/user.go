@@ -21,6 +21,14 @@ func New(name string, email string) User {
 	return User{name: name, email: email}
 }
 
+func (u User) Name() string {
+	return u.name
+}
+
+func (u User) Email() string {
+	return u.email
+}
+
 func (u User) Validate() (errs []error) {
 	errs = u.ValidateName()
 	errs = append(errs, u.ValidateEmail()...)
