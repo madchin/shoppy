@@ -51,31 +51,6 @@ func (e ContextError) Error() string {
 	return fmt.Sprintf("In %s operation error %T occured %s", e.context, e.errorType, errMsg)
 }
 
-type ErrMissingEnv struct {
-	ContextError
-	Keys      []string
-	missCount int
-}
-
 func NewContextError(context string, errorType ErrorType, errors []error) ContextError {
 	return ContextError{context, errorType, errors}
-}
-
-// FIXME
-func NewErrMissingEnv(contextErr ContextError) *ErrMissingEnv {
-	return &ErrMissingEnv{ContextError{}, []string{}, 0}
-}
-
-func (e *ErrMissingEnv) Add(env string) {
-	e.Keys = append(e.Keys, env)
-}
-
-func (e *ErrMissingEnv) Error() string {
-	missingEnvs := make([]string, 0)
-	for _, env := range e.Keys {
-		e.missCount++
-		missingEnvs = append(missingEnvs, env)
-	}
-
-	return fmt.Sprintf("%d count of envs are missing: %s", e.missCount, missingEnvs)
 }

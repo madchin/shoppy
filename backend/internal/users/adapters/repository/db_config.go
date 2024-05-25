@@ -1,8 +1,6 @@
 package adapters
 
 import (
-	cerr "backend/internal/common/errors"
-	custom_error "backend/internal/common/errors"
 	"database/sql"
 	"fmt"
 	"os"
@@ -14,23 +12,21 @@ import (
 var REQUIRED_ENVS = []string{"DB_USER", "DB_PASS", "DB_HOST", "DB_PORT", "DB_NAME"}
 
 func NewDatabase() (*sql.DB, error) {
-	errMissingEnvs := cerr.NewErrMissingEnv(custom_error.ContextError{})
-	envs := make(map[string]string, len(REQUIRED_ENVS))
+	missingEnvs := make(map[string]string, 0)
 	for _, key := range REQUIRED_ENVS {
-		if value, ok := os.LookupEnv(key); ok {
-			envs[key] = value
+		if value, ok := os.LookupEnv(key); !ok {
+			missingEnvs[key] = value
 			continue
 		}
-		errMissingEnvs.Add(key)
 	}
-	if len(errMissingEnvs.Keys) >= 1 {
-		return nil, errMissingEnvs
+	if len(missingEnvs) >= 1 {
+		panic(fmt.Sprintf("DB CONFIG ERROR: Missing envs: %v", missingEnvs))
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", envs["DB_USER"], envs["DB_PASS"], envs["DB_HOST"], envs["DB_PORT"], envs["DB_NAME"])
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		return nil, err
+		panic(fmt.Sprintf("DB CONFIG ERROR: db has not been opened: %s", err.Error()))
 	}
 
 	db.SetConnMaxLifetime(time.Minute * 3)
@@ -39,14 +35,13 @@ func NewDatabase() (*sql.DB, error) {
 
 	err = createTables(db)
 	if err != nil {
-		return nil, err
+		panic(fmt.Sprintf("DB CONFIG ERROR: tables has not been created: %s", err.Error()))
 	}
 
 	return db, nil
 }
 
 func createTables(db *sql.DB) error {
-
 	_, err := db.Exec("CREATE TABLE IF NOT EXISTS Users (uuid varchar(36) NOT NULL, name varchar(255), email varchar(255) NOT NULL UNIQUE, PRIMARY KEY (uuid))")
 	if err != nil {
 		return err
