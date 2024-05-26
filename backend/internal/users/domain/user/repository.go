@@ -19,6 +19,11 @@ type Repository interface {
 		email string,
 		updateFn func(User) (User, []error),
 	) custom_error.ContextError
+	UpdatePassword(
+		uuid string,
+		password string,
+		updateFn func(User) (User, []error),
+	) custom_error.ContextError
 	Delete(uuid string) custom_error.ContextError
 }
 

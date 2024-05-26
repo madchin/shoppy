@@ -54,3 +54,7 @@ func (e ContextError) Error() string {
 func NewContextError(context string, errorType ErrorType, errors []error) ContextError {
 	return ContextError{context, errorType, errors}
 }
+
+func UnknownError(context string, err error) ContextError {
+	return NewContextError(context, ErrorTypeUnknown, []error{err})
+}

@@ -45,6 +45,7 @@ components:
       required:
         - name
         - email
+        - password
     Error:
       description: Basic error
       type: object
