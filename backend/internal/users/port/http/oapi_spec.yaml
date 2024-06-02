@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 openapi: "3.0.0"
+=======
+openapi: 3.1.0
+>>>>>>> b9cb2be7456729d41ba0855d984138bd85f110f0
 info:
   title: User service
   description: |
     Provides service for user
   version: 0.1.0
+<<<<<<< HEAD
 servers:
   - url: "{protocol}://{host}:{port}"
     variables:
@@ -21,6 +26,8 @@ servers:
           - localhost
       port:
         default: "8090"
+=======
+>>>>>>> b9cb2be7456729d41ba0855d984138bd85f110f0
 components:
   securitySchemes:
     bearerAuth:
@@ -37,6 +44,7 @@ components:
           description: User name
         email:
           type: string
+<<<<<<< HEAD
           description: User email
         password:
           type: string
@@ -72,19 +80,59 @@ components:
           schema:
               $ref: "#/components/schemas/Error"
     ErrInternal:
+=======
+          description: User email      
+  responses:
+    ErrUserNotFound:
+      "404":
+        description: User with provided id has not been found
+        content:
+          type: object
+          properties:
+            description:
+              type: string
+              enum:
+              - User with provided id has not been found
+    ErrUnauthorized:
+      "401":
+        description: Access token is missing or invalid
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  enum:
+                  - Access token is missing or invalid
+    ErrInternal:
+      "5XX":
+>>>>>>> b9cb2be7456729d41ba0855d984138bd85f110f0
         description: Internal error. Something unhandled happened on the server
         content:
           application/json:
             schema:
+<<<<<<< HEAD
               $ref: "#/components/schemas/Error"
+=======
+              type: object
+              properties:
+                description:
+                  type: string
+                  enum:
+                  - Oops! Something went wrong.
+>>>>>>> b9cb2be7456729d41ba0855d984138bd85f110f0
 paths:
   /user:
     get:
       security:
       - bearerAuth: []
       description: Retrieves user with {id}, id is retrieved from JWT in middleware
+<<<<<<< HEAD
       tags:
         - user
+=======
+>>>>>>> b9cb2be7456729d41ba0855d984138bd85f110f0
       responses:
         "200":
           description: User successfully retrieved
@@ -98,6 +146,7 @@ paths:
           $ref: "#/components/responses/ErrUserNotFound"
         "5XX":
           $ref: "#/components/responses/ErrInternal"
+<<<<<<< HEAD
     delete:
       security:
       - bearerAuth: []
@@ -123,6 +172,9 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/User"
+=======
+    post:
+>>>>>>> b9cb2be7456729d41ba0855d984138bd85f110f0
       responses:
         "201":
           description: User successfully created
@@ -130,6 +182,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+<<<<<<< HEAD
         "400":
           description: Unable to create user cause it already exists.
           content:
@@ -156,6 +209,17 @@ paths:
       responses:
         "200":
           description: User name successfully updated
+=======
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+    put:
+      description: Operations for user update
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: User successfully updated
+>>>>>>> b9cb2be7456729d41ba0855d984138bd85f110f0
           content:
             application/json:
               schema:
@@ -164,6 +228,7 @@ paths:
           $ref: "#/components/responses/ErrUnauthorized"
         "5XX":
           $ref: "#/components/responses/ErrInternal"
+<<<<<<< HEAD
   /user/update-email:
     put:
       description: User email update
@@ -216,3 +281,17 @@ paths:
           $ref: "#/components/responses/ErrUnauthorized"
         "5XX":
           $ref: "#/components/responses/ErrInternal"
+=======
+    delete:
+      security:
+      - bearerAuth: []
+      responses:
+        "204":
+          description: User has been deleted successfully
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "404":
+          $ref: "#/components/responses/ErrUserNotFound"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+>>>>>>> b9cb2be7456729d41ba0855d984138bd85f110f0
