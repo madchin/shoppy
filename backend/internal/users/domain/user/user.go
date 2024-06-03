@@ -19,7 +19,7 @@ const (
 	emailMaxLength    = 320
 )
 
-func New(name string, email string, password string) User {
+func NewUser(name string, email string, password string) User {
 	return User{name: name, email: email, password: password}
 }
 

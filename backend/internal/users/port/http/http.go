@@ -49,7 +49,7 @@ func (h httpServer) PostUser(w http.ResponseWriter, r *http.Request) {
 		httperror.ErrorHandler(w, r, custom_error.UnknownError("user add", errors.New("incorrect request body")))
 		return
 	}
-	domainUser := user.New(decodedUser.Name, decodedUser.Email, *decodedUser.Password)
+	domainUser := user.NewUser(decodedUser.Name, decodedUser.Email, *decodedUser.Password)
 	registerUser := command.NewRegisterUser(uuid, domainUser)
 	if err := h.app.Command.RegisterUser.Handle(registerUser); err.Error() != "" {
 		httperror.ErrorHandler(w, r, err)

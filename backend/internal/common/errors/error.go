@@ -6,6 +6,7 @@ package custom_error
 // then i can consume it in port layer via switch case and return revelant response to user (array json with all errors. it can be multiple validation errors or one persistence error)
 // in case of one json object, in case of > 1 array with objects
 import (
+	"errors"
 	"fmt"
 )
 
@@ -19,6 +20,10 @@ var (
 	ErrorTypeValidation    = ErrorType{"validation"}
 	ErrorTypeAuthorization = ErrorType{"authorization"}
 	ErrorTypeConfiguration = ErrorType{"config"}
+)
+
+var (
+	errUnknown = errors.New("unknown")
 )
 
 type ContextError struct {
@@ -51,10 +56,30 @@ func (e ContextError) Error() string {
 	return fmt.Sprintf("In %s operation error %T occured %s", e.context, e.errorType, errMsg)
 }
 
-func NewContextError(context string, errorType ErrorType, errors []error) ContextError {
+func newContextError(context string, errorType ErrorType, errors []error) ContextError {
 	return ContextError{context, errorType, errors}
 }
 
-func UnknownError(context string, err error) ContextError {
-	return NewContextError(context, ErrorTypeUnknown, []error{err})
+func NewPersistenceError(context string, message string) ContextError {
+	return newContextError(context, ErrorTypePersistence, []error{errors.New(message)})
+}
+
+func NewValidationErrors(context string, errs []error) ContextError {
+	return newContextError(context, ErrorTypeValidation, errs)
+}
+
+func NewAuthorizationError(context string, message string) ContextError {
+	return newContextError(context, ErrorTypePersistence, []error{errors.New(message)})
+}
+
+func NewConfigurationError(context string, message string) ContextError {
+	return newContextError(context, ErrorTypePersistence, []error{errors.New(message)})
+}
+
+func UnknownError(context string) ContextError {
+	return newContextError(context, ErrorTypeUnknown, []error{errUnknown})
+}
+
+func UnknownPersistenceError(context string) ContextError {
+	return newContextError(context, ErrorTypePersistence, []error{errUnknown})
 }

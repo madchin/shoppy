@@ -28,16 +28,25 @@ type Repository interface {
 }
 
 type DetailRepository interface {
+	Get(userUuid string) (UserDetail, custom_error.ContextError)
+	Create(
+		userUuid string,
+		userDetail UserDetail,
+		createFn func(UserDetail) (UserDetail, []error),
+	) custom_error.ContextError
 	UpdateFirstName(
 		userUuid string,
 		name string,
 		updateFn func(UserDetail) (UserDetail, error),
-	) error
+	) custom_error.ContextError
 	UpdateLastName(
 		userUuid string,
 		name string,
 		updateFn func(UserDetail) (UserDetail, error),
-	) error
+	) custom_error.ContextError
+	Delete(
+		userUuid string,
+	) custom_error.ContextError
 }
 
 type PhoneRepository interface {

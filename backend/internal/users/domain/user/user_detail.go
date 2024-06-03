@@ -2,8 +2,6 @@ package user
 
 import (
 	"errors"
-
-	"github.com/hashicorp/go-multierror"
 )
 
 type UserDetail struct {
@@ -11,29 +9,37 @@ type UserDetail struct {
 	lastName  string
 }
 
-var errFirstNameEmpty = errors.New("User first name is empty")
-var errLastNameEmpty = errors.New("User last name is empty")
+func (ud UserDetail) FirstName() string {
+	return ud.firstName
+}
 
-func (u UserDetail) Validate() error {
-	err := u.validateFirstName()
-	err = multierror.Append(err, u.validateLastName())
-	return err.(*multierror.Error).ErrorOrNil()
+func (ud UserDetail) LastName() string {
+	return ud.lastName
+}
+
+func NewUserDetail(firstName string, lastName string) UserDetail {
+	return UserDetail{firstName, lastName}
+}
+func (u UserDetail) Validate() (errs []error) {
+	errs = append(errs, u.ValidateFirstName())
+	errs = append(errs, u.ValidateLastName())
+	return
 }
 
 func (u UserDetail) IsProvided() bool {
 	return u.Validate() != nil
 }
 
-func (u UserDetail) validateFirstName() (err error) {
+func (u UserDetail) ValidateFirstName() (err error) {
 	if u.firstName == "" {
-		err = errFirstNameEmpty
+		err = errors.New("User first name is empty")
 	}
-	return err
+	return
 }
 
-func (u UserDetail) validateLastName() (err error) {
+func (u UserDetail) ValidateLastName() (err error) {
 	if u.lastName == "" {
-		err = errLastNameEmpty
+		err = errors.New("User last name is empty")
 	}
-	return err
+	return
 }

@@ -16,10 +16,13 @@ type Command struct {
 	UpdateUserEmail    command.UpdateUserEmailHandler
 	UpdateUserName     command.UpdateUserNameHandler
 	UpdateUserPassword command.UpdateUserPasswordHandler
+	DeleteUserDetail   command.DeleteUserDetailHandler
+	CreateUserDetail   command.CreateUserDetailHandler
 }
 
 type Query struct {
-	RetrieveUser query.RetrieveUserHandler
+	RetrieveUser       query.RetrieveUserHandler
+	RetrieveUserDetail query.RetrieveUserDetailHandler
 }
 
 type Application struct {
