@@ -11,13 +11,15 @@ import (
 //usecases
 
 type Command struct {
-	RegisterUser       command.RegisterUserHandler
-	DeleteUser         command.DeleteUserHandler
-	UpdateUserEmail    command.UpdateUserEmailHandler
-	UpdateUserName     command.UpdateUserNameHandler
-	UpdateUserPassword command.UpdateUserPasswordHandler
-	DeleteUserDetail   command.DeleteUserDetailHandler
-	CreateUserDetail   command.CreateUserDetailHandler
+	RegisterUser              command.RegisterUserHandler
+	DeleteUser                command.DeleteUserHandler
+	UpdateUserEmail           command.UpdateUserEmailHandler
+	UpdateUserName            command.UpdateUserNameHandler
+	UpdateUserPassword        command.UpdateUserPasswordHandler
+	DeleteUserDetail          command.DeleteUserDetailHandler
+	CreateUserDetail          command.CreateUserDetailHandler
+	UpdateUserDetailFirstName command.UpdateUserDetailFirstNameHandler
+	UpdateUserDetailLastName  command.UpdateUserDetailLastNameHandler
 }
 
 type Query struct {
