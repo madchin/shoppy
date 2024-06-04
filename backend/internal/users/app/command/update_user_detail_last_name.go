@@ -28,11 +28,7 @@ func NewUpdateUserDetailLastNameHandler(repo user.DetailRepository, logger *logr
 }
 
 func (u updateUserDetailLastNameHandler) Handle(cmd updateUserDetailLastName) custom_error.ContextError {
-	return u.repo.UpdateLastName(cmd.uuid, cmd.lastName, func(u user.UserDetail) (user.UserDetail, error) {
-		err := u.ValidateLastName()
-		if err != nil {
-			return user.UserDetail{}, err
-		}
-		return u, nil
+	return u.repo.UpdateLastName(cmd.uuid, cmd.lastName, func(u user.UserDetail) error {
+		return u.ValidateLastName()
 	})
 }

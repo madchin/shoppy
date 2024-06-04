@@ -28,11 +28,7 @@ func NewUpdateUserDetailFirstNameHandler(repo user.DetailRepository, logger *log
 }
 
 func (u updateUserDetailFirstNameHandler) Handle(cmd updateUserDetailFirstName) custom_error.ContextError {
-	return u.repo.UpdateFirstName(cmd.uuid, cmd.firstName, func(u user.UserDetail) (user.UserDetail, error) {
-		err := u.ValidateFirstName()
-		if err != nil {
-			return user.UserDetail{}, err
-		}
-		return u, nil
+	return u.repo.UpdateFirstName(cmd.uuid, cmd.firstName, func(u user.UserDetail) error {
+		return u.ValidateFirstName()
 	})
 }

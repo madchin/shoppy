@@ -28,11 +28,7 @@ func NewUpdateUserPasswordHandler(userRepository user.Repository, logger *logrus
 }
 
 func (c updateUserPasswordHandler) Handle(cmd updateUserPassword) custom_error.ContextError {
-	return c.userRepository.UpdatePassword(cmd.uuid, cmd.password, func(u user.User) (user.User, []error) {
-		err := u.ValidatePassword()
-		if err != nil {
-			return user.User{}, err
-		}
-		return u, nil
+	return c.userRepository.UpdatePassword(cmd.uuid, cmd.password, func(u user.User) []error {
+		return u.ValidatePassword()
 	})
 }

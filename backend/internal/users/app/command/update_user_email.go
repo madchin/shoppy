@@ -28,11 +28,7 @@ func NewUpdateUserEmailHandler(repo user.Repository, logger *logrus.Entry) Updat
 }
 
 func (u updateUserEmailHandler) Handle(cmd updateUserEmail) custom_error.ContextError {
-	return u.repo.UpdateEmail(cmd.uuid, cmd.email, func(u user.User) (user.User, []error) {
-		err := u.ValidateEmail()
-		if err != nil {
-			return user.User{}, err
-		}
-		return u, nil
+	return u.repo.UpdateEmail(cmd.uuid, cmd.email, func(u user.User) []error {
+		return u.ValidateEmail()
 	})
 }

@@ -6,23 +6,23 @@ type Repository interface {
 	Create(
 		uuid string,
 		user User,
-		createFn func(User) (User, []error),
+		validateFn func(User) []error,
 	) custom_error.ContextError
 	Get(uuid string) (User, custom_error.ContextError)
 	UpdateName(
 		uuid string,
 		name string,
-		updateFn func(User) (User, []error),
+		validateFn func(User) []error,
 	) custom_error.ContextError
 	UpdateEmail(
 		uuid string,
 		email string,
-		updateFn func(User) (User, []error),
+		validateFn func(User) []error,
 	) custom_error.ContextError
 	UpdatePassword(
 		uuid string,
 		password string,
-		updateFn func(User) (User, []error),
+		validateFn func(User) []error,
 	) custom_error.ContextError
 	Delete(uuid string) custom_error.ContextError
 }
@@ -32,17 +32,17 @@ type DetailRepository interface {
 	Create(
 		userUuid string,
 		userDetail UserDetail,
-		createFn func(UserDetail) (UserDetail, []error),
+		validateFn func(UserDetail) []error,
 	) custom_error.ContextError
 	UpdateFirstName(
 		userUuid string,
 		name string,
-		updateFn func(UserDetail) (UserDetail, error),
+		validateFn func(UserDetail) error,
 	) custom_error.ContextError
 	UpdateLastName(
 		userUuid string,
 		name string,
-		updateFn func(UserDetail) (UserDetail, error),
+		validateFn func(UserDetail) error,
 	) custom_error.ContextError
 	Delete(
 		userUuid string,
@@ -52,8 +52,8 @@ type DetailRepository interface {
 type PhoneRepository interface {
 	Create(
 		userUuid string,
-		number int,
-		createFn func(Phone) (Phone, []error),
+		number string,
+		validateFn func(Phone) []error,
 	) custom_error.ContextError
 	Get(
 		userUuid string,
@@ -62,12 +62,12 @@ type PhoneRepository interface {
 		userUuid string,
 		prevNumber string,
 		phone Phone,
-		updateFn func(Phone) (Phone, []error),
+		validateFn func(Phone) []error,
 	) custom_error.ContextError
 	DeletePhone(
 		userUuid string,
 		phone Phone,
-		deleteFn func(Phones) (Phones, error),
+		validateFn func(Phones) error,
 	) custom_error.ContextError
 	DeleteAll(
 		userUuid string,

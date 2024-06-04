@@ -28,12 +28,8 @@ func NewCreateUserDetailHandler(repo user.DetailRepository, logger *logrus.Entry
 }
 
 func (ru createUserDetailHandler) Handle(cmd createUserDetail) custom_error.ContextError {
-	return ru.repo.Create(cmd.uuid, cmd.user, func(u user.UserDetail) (user.UserDetail, []error) {
-		errs := u.Validate()
-		if errs != nil {
-			return user.UserDetail{}, errs
-		}
-		return u, nil
+	return ru.repo.Create(cmd.uuid, cmd.user, func(u user.UserDetail) []error {
+		return u.Validate()
 	})
 
 }

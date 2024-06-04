@@ -28,11 +28,7 @@ func NewUpdateUserNameHandler(repo user.Repository, logger *logrus.Entry) Update
 }
 
 func (u updateUserNameHandler) Handle(cmd updateUserName) custom_error.ContextError {
-	return u.repo.UpdateName(cmd.uuid, cmd.name, func(u user.User) (user.User, []error) {
-		err := u.ValidateName()
-		if err != nil {
-			return user.User{}, err
-		}
-		return u, nil
+	return u.repo.UpdateName(cmd.uuid, cmd.name, func(u user.User) []error {
+		return u.ValidateName()
 	})
 }

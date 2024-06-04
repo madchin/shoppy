@@ -28,12 +28,8 @@ func NewRegisterUserHandler(repo user.Repository, logger *logrus.Entry) decorato
 }
 
 func (ru registerUserHandler) Handle(cmd registerUser) custom_error.ContextError {
-	return ru.repo.Create(cmd.uuid, cmd.user, func(u user.User) (user.User, []error) {
-		errs := u.Validate()
-		if errs != nil {
-			return user.User{}, errs
-		}
-		return u, nil
+	return ru.repo.Create(cmd.uuid, cmd.user, func(u user.User) []error {
+		return u.Validate()
 	})
 
 }
