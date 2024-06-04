@@ -24,7 +24,7 @@ func (phone Phone) Number() string {
 	return phone.number
 }
 
-func (phones Phones) AlreadyExists(number string) bool {
+func (phones Phones) NumberExist(number string) bool {
 	deletePhoneExists := false
 	for _, phone := range phones {
 		if phone.Number() == number {
