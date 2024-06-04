@@ -50,9 +50,26 @@ type DetailRepository interface {
 }
 
 type PhoneRepository interface {
-	UpdateNumber(
+	Create(
 		userUuid string,
 		number int,
-		updateFn func(Phone) (Phone, error),
-	) error
+		createFn func(Phone) (Phone, []error),
+	) custom_error.ContextError
+	Get(
+		userUuid string,
+	) (Phones, custom_error.ContextError)
+	Update(
+		userUuid string,
+		prevNumber string,
+		phone Phone,
+		updateFn func(Phone) (Phone, []error),
+	) custom_error.ContextError
+	DeletePhone(
+		userUuid string,
+		phone Phone,
+		deleteFn func(Phones) (Phones, error),
+	) custom_error.ContextError
+	DeleteAll(
+		userUuid string,
+	) custom_error.ContextError
 }

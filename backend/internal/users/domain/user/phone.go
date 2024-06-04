@@ -1,46 +1,51 @@
 package user
 
 import (
-	"backend/internal/common/domain"
 	"errors"
-	"fmt"
 	"regexp"
-
-	"github.com/hashicorp/go-multierror"
 )
 
 type Phone struct {
-	number int
+	number string
 }
 
-var errNumberMaxLength = errors.New("Phone number is too long")
-var errNumberNotMatch = errors.New("Phone format is wrong")
+type Phones []Phone
 
 const (
 	maxNumberLength = 15
 	numberRegex     = `^[+]{1}(?:[0-9\-\(\)\/\.]\s?){6, 15}[0-9]{1}$`
 )
 
-func (p Phone) Validate() error {
-	err := p.validateNumber()
-	return err.(*multierror.Error).ErrorOrNil()
+func NewPhone(number string) Phone {
+	return Phone{number}
 }
 
-func (p Phone) IsProvided() bool {
-	return p.Validate() != nil
+func (phone Phone) Number() string {
+	return phone.number
 }
 
-func (p Phone) validateNumber() (err error) {
-	strNumber := fmt.Sprintf("%d", p.number)
-	if len(strNumber) > maxNumberLength {
-		err = errNumberMaxLength
+func (phones Phones) AlreadyExists(number string) bool {
+	deletePhoneExists := false
+	for _, phone := range phones {
+		if phone.Number() == number {
+			deletePhoneExists = true
+			break
+		}
 	}
-	ok, rerr := regexp.MatchString(numberRegex, strNumber)
-	if rerr != nil {
-		err = multierror.Append(err, domain.ErrInternal)
+	return deletePhoneExists
+}
+
+func (phone Phone) Validate() (errs []error) {
+	return phone.validateNumber()
+}
+
+func (p Phone) validateNumber() (errs []error) {
+	if len(p.number) > maxNumberLength {
+		errs = append(errs, errors.New("Phone number is too long"))
 	}
+	ok, _ := regexp.MatchString(numberRegex, p.number)
 	if !ok {
-		err = multierror.Append(err, errNumberNotMatch)
+		errs = append(errs, errors.New("Phone format is wrong"))
 	}
-	return err
+	return
 }
