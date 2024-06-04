@@ -15,6 +15,10 @@ type PhoneRepository struct {
 	db *sql.DB
 }
 
+func NewPhoneRepository(db *sql.DB) user.PhoneRepository {
+	return PhoneRepository{db}
+}
+
 func (p PhoneRepository) Get(userUuid string) (user.Phones, custom_error.ContextError) {
 	rows, err := p.db.Query("SELECT * FROM Phones WHERE uuid=?", userUuid)
 
@@ -41,9 +45,9 @@ func (p PhoneRepository) Get(userUuid string) (user.Phones, custom_error.Context
 	return phones, custom_error.ContextError{}
 }
 
-func (ur PhoneRepository) Create(userUuid, phone user.Phone, createFn func(user.Phone) (user.Phone, []error)) custom_error.ContextError {
-	phone, errs := createFn(phone)
-	if len(errs) > 0 {
+func (ur PhoneRepository) Create(userUuid string, phone user.Phone, validateFn func(user.Phone) []error) custom_error.ContextError {
+
+	if errs := validateFn(phone); len(errs) > 0 {
 		return custom_error.NewValidationErrors("user phone create", errs)
 	}
 	if _, err := ur.db.Exec("INSERT INTO Phones VALUES (?,?)", userUuid, phone.Number()); err != nil {
@@ -52,9 +56,8 @@ func (ur PhoneRepository) Create(userUuid, phone user.Phone, createFn func(user.
 	return custom_error.ContextError{}
 }
 
-func (ur PhoneRepository) Update(userUuid string, prevNumber string, phone user.Phone, updateFn func(user.Phone) (user.Phone, []error)) custom_error.ContextError {
-	phone, errs := updateFn(phone)
-	if len(errs) > 0 {
+func (ur PhoneRepository) Update(userUuid string, prevNumber string, phone user.Phone, validateFn func(user.Phone) []error) custom_error.ContextError {
+	if errs := validateFn(phone); len(errs) > 0 {
 		return custom_error.NewValidationErrors("user number update", errs)
 	}
 
@@ -69,13 +72,13 @@ func (ur PhoneRepository) Update(userUuid string, prevNumber string, phone user.
 	return custom_error.ContextError{}
 }
 
-func (ur PhoneRepository) DeletePhone(userUuid string, phone user.Phone, deleteFn func(user.Phones) (user.Phones, error)) custom_error.ContextError {
+func (ur PhoneRepository) DeletePhone(userUuid string, phone user.Phone, deleteFn func(user.Phones) error) custom_error.ContextError {
 	phones, err := ur.Get(userUuid)
 	if err.Error() != "" {
 		return err
 	}
 
-	if _, err := deleteFn(phones); err != nil {
+	if err := deleteFn(phones); err != nil {
 		return custom_error.NewPersistenceError("user phone deletion", err.Error())
 	}
 

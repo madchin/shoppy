@@ -52,7 +52,7 @@ type DetailRepository interface {
 type PhoneRepository interface {
 	Create(
 		userUuid string,
-		number string,
+		phone Phone,
 		validateFn func(Phone) []error,
 	) custom_error.ContextError
 	Get(

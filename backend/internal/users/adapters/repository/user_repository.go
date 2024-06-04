@@ -41,8 +41,8 @@ func (ur *UserRepository) Get(uuid string) (user.User, custom_error.ContextError
 	domainUser := user.NewUser(userDto.name, userDto.email, userDto.password)
 	return domainUser, custom_error.ContextError{}
 }
-func (ur *UserRepository) Create(uuid string, u user.User, createFn func(user.User) (user.User, []error)) custom_error.ContextError {
-	u, errs := createFn(u)
+func (ur *UserRepository) Create(uuid string, u user.User, createFn func(user.User) []error) custom_error.ContextError {
+	errs := createFn(u)
 	if len(errs) > 0 {
 		return custom_error.NewValidationErrors("user add", errs)
 	}
@@ -56,13 +56,13 @@ func (ur *UserRepository) Create(uuid string, u user.User, createFn func(user.Us
 
 	return custom_error.ContextError{}
 }
-func (ur *UserRepository) UpdateName(uuid string, name string, updateFn func(user.User) (user.User, []error)) custom_error.ContextError {
+func (ur *UserRepository) UpdateName(uuid string, name string, updateFn func(user.User) []error) custom_error.ContextError {
 	u, err := ur.Get(uuid)
 	if err.Error() != "" {
 		return err
 	}
 
-	u, errs := updateFn(u)
+	errs := updateFn(u)
 	if len(errs) > 0 {
 		return custom_error.NewValidationErrors("user update name", errs)
 	}
@@ -73,12 +73,12 @@ func (ur *UserRepository) UpdateName(uuid string, name string, updateFn func(use
 
 	return custom_error.ContextError{}
 }
-func (ur *UserRepository) UpdateEmail(uuid string, email string, updateFn func(user.User) (user.User, []error)) custom_error.ContextError {
+func (ur *UserRepository) UpdateEmail(uuid string, email string, updateFn func(user.User) []error) custom_error.ContextError {
 	u, err := ur.Get(uuid)
 	if err.Error() != "" {
 		return err
 	}
-	u, errs := updateFn(u)
+	errs := updateFn(u)
 	if len(errs) > 0 {
 		return custom_error.NewValidationErrors("user update email", errs)
 	}
@@ -90,13 +90,13 @@ func (ur *UserRepository) UpdateEmail(uuid string, email string, updateFn func(u
 	return custom_error.ContextError{}
 }
 
-func (ur *UserRepository) UpdatePassword(uuid string, password string, updateFn func(user.User) (user.User, []error)) custom_error.ContextError {
+func (ur *UserRepository) UpdatePassword(uuid string, password string, updateFn func(user.User) []error) custom_error.ContextError {
 	u, err := ur.Get(uuid)
 	if err.Error() != "" {
 		return err
 	}
 
-	u, errs := updateFn(u)
+	errs := updateFn(u)
 	if len(errs) > 0 {
 		return custom_error.NewValidationErrors("user update password", errs)
 	}

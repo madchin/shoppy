@@ -68,6 +68,10 @@ func NewValidationErrors(context string, errs []error) ContextError {
 	return newContextError(context, ErrorTypeValidation, errs)
 }
 
+func NewValidationError(context string, message string) ContextError {
+	return newContextError(context, ErrorTypeValidation, []error{errors.New(message)})
+}
+
 func NewAuthorizationError(context string, message string) ContextError {
 	return newContextError(context, ErrorTypePersistence, []error{errors.New(message)})
 }
