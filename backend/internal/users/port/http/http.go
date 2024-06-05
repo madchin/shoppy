@@ -89,7 +89,7 @@ func (h httpServer) DeleteUserDetail(w http.ResponseWriter, r *http.Request) {
 		httperror.ErrorHandler(w, r, err)
 		return
 	}
-	server.Success(w, http.StatusOK)
+	server.Success(w, http.StatusNoContent)
 }
 
 func (h httpServer) GetUserDetail(w http.ResponseWriter, r *http.Request) {
@@ -101,7 +101,7 @@ func (h httpServer) GetUserDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	firstName, lastName := u.FirstName(), u.LastName()
-	server.SuccessWithBody(w, http.StatusCreated, UserDetail{FirstName: &firstName, LastName: &lastName})
+	server.SuccessWithBody(w, http.StatusOK, UserDetail{FirstName: &firstName, LastName: &lastName})
 }
 
 func (h httpServer) PostUserDetail(w http.ResponseWriter, r *http.Request) {
@@ -117,7 +117,8 @@ func (h httpServer) PostUserDetail(w http.ResponseWriter, r *http.Request) {
 		httperror.ErrorHandler(w, r, err)
 		return
 	}
-	server.Success(w, http.StatusCreated)
+	firstName, lastName := domainUser.FirstName(), domainUser.LastName()
+	server.SuccessWithBody(w, http.StatusCreated, UserDetail{FirstName: &firstName, LastName: &lastName})
 }
 
 func (h httpServer) PutUserDetailUpdateFirstName(w http.ResponseWriter, r *http.Request, params PutUserDetailUpdateFirstNameParams) {
@@ -127,10 +128,9 @@ func (h httpServer) PutUserDetailUpdateFirstName(w http.ResponseWriter, r *http.
 		httperror.ErrorHandler(w, r, err)
 		return
 	}
-	server.Success(w, http.StatusCreated)
+	server.SuccessWithBody(w, http.StatusOK, UserDetail{FirstName: &params.FirstName})
 }
 
-// PutUserDetailUpdateLastName implements ServerInterface.
 func (h httpServer) PutUserDetailUpdateLastName(w http.ResponseWriter, r *http.Request, params PutUserDetailUpdateLastNameParams) {
 	uuid := ""
 	updateUserDetailLastName := command.NewUpdateUserDetailLastName(uuid, params.LastName)
@@ -138,7 +138,7 @@ func (h httpServer) PutUserDetailUpdateLastName(w http.ResponseWriter, r *http.R
 		httperror.ErrorHandler(w, r, err)
 		return
 	}
-	server.Success(w, http.StatusCreated)
+	server.SuccessWithBody(w, http.StatusOK, UserDetail{LastName: &params.LastName})
 }
 
 func (h httpServer) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +149,7 @@ func (h httpServer) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		httperror.ErrorHandler(w, r, err)
 		return
 	}
-	server.Success(w, http.StatusOK)
+	server.Success(w, http.StatusNoContent)
 }
 
 func (h httpServer) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -160,7 +160,7 @@ func (h httpServer) GetUser(w http.ResponseWriter, r *http.Request) {
 		httperror.ErrorHandler(w, r, err)
 		return
 	}
-	server.SuccessWithBody(w, http.StatusCreated, User{Email: u.Email(), Name: u.Name()})
+	server.SuccessWithBody(w, http.StatusOK, User{Email: u.Email(), Name: u.Name()})
 }
 
 func (h httpServer) PostUser(w http.ResponseWriter, r *http.Request) {
@@ -176,7 +176,8 @@ func (h httpServer) PostUser(w http.ResponseWriter, r *http.Request) {
 		httperror.ErrorHandler(w, r, err)
 		return
 	}
-	server.Success(w, http.StatusCreated)
+	email, name, password := domainUser.Email(), domainUser.Name(), domainUser.Password()
+	server.SuccessWithBody(w, http.StatusCreated, User{Email: email, Name: name, Password: &password})
 }
 
 func (h httpServer) PutUserUpdateEmail(w http.ResponseWriter, r *http.Request, params PutUserUpdateEmailParams) {
@@ -186,7 +187,7 @@ func (h httpServer) PutUserUpdateEmail(w http.ResponseWriter, r *http.Request, p
 		httperror.ErrorHandler(w, r, err)
 		return
 	}
-	server.Success(w, http.StatusCreated)
+	server.SuccessWithBody(w, http.StatusOK, User{Email: params.Email})
 }
 
 func (h httpServer) PutUserUpdateName(w http.ResponseWriter, r *http.Request, params PutUserUpdateNameParams) {
@@ -196,7 +197,7 @@ func (h httpServer) PutUserUpdateName(w http.ResponseWriter, r *http.Request, pa
 		httperror.ErrorHandler(w, r, err)
 		return
 	}
-	server.Success(w, http.StatusCreated)
+	server.SuccessWithBody(w, http.StatusOK, User{Name: params.Name})
 }
 
 func (h httpServer) PutUserUpdatePassword(w http.ResponseWriter, r *http.Request, params PutUserUpdatePasswordParams) {
@@ -206,5 +207,5 @@ func (h httpServer) PutUserUpdatePassword(w http.ResponseWriter, r *http.Request
 		httperror.ErrorHandler(w, r, err)
 		return
 	}
-	server.Success(w, http.StatusCreated)
+	server.Success(w, http.StatusOK)
 }

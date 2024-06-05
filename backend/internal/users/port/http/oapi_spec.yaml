@@ -184,7 +184,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  name:
+                    type: string
+                required:
+                  - name
         "401":
           $ref: "#/components/responses/ErrUnauthorized"
         "5XX":
@@ -210,7 +215,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  email:
+                    type: string
+                required:
+                  - email
         "401":
           $ref: "#/components/responses/ErrUnauthorized"
         "5XX":
@@ -232,11 +242,7 @@ paths:
           description: password used to update
       responses:
         "200":
-          description: User password successfully updated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
+          description: User password successfully updated                  
         "401":
           $ref: "#/components/responses/ErrUnauthorized"
         "5XX":
@@ -318,7 +324,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserDetail"
+                type: object
+                properties:
+                  firstName:
+                    type: string
+                required:
+                  - lastName
         "401":
           $ref: "#/components/responses/ErrUnauthorized"
         "5XX":
@@ -344,7 +355,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserDetail"
+                type: object
+                properties:
+                  lastName:
+                    type: string
+                required:
+                  - lastName
         "401":
           $ref: "#/components/responses/ErrUnauthorized"
         "5XX":
