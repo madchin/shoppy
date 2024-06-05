@@ -65,6 +65,17 @@ components:
       required:
         - description
         - type
+    Phone:
+      description: Retrieved / Created phone
+      type: object
+      properties:
+        number:
+          type: string
+    Phones:
+      description: list of phones
+      type: array
+      items:
+        type: string
   responses:
     ErrUserNotFound:
         description: User with provided id has not been found
@@ -335,4 +346,112 @@ paths:
           $ref: "#/components/responses/ErrUnauthorized"
         "5XX":
           $ref: "#/components/responses/ErrInternal"
+  /user/phone:
+    post:
+      description: create user phone
+      tags:
+        - user phone
+      security:
+      - bearerAuth: []
+      parameters:
+        - in: query
+          name: number
+          schema:
+            type: string
+            minLength: 6
+          required: true
+          description: number used to create phone
+      responses:
+        "201":
+          description: Phone created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Phone"
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+    put:
+      description: update user phone
+      tags:
+        - user phone
+      security:
+      - bearerAuth: []
+      parameters:
+        - in: query
+          name: previousNumber
+          schema:
+            type: string
+          required: true
+          description: previous number which will be updated
+      requestBody:
+        description: next number used to update
+        required: true
+        content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Phone"
+      responses:
+        "200":
+          description: user phone successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Phone"
+        "401": 
+          $ref: "#/components/responses/ErrUnauthorized"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+    delete:
+      description: delete one user phone
+      tags:
+        - user phone
+      security:
+      - bearerAuth: []
+      parameters:
+        - in: query
+          name: number
+          schema:
+            type: string
+          required: true
+          description: number to delete
+      responses:
+        "204":
+          description: number deleted successfully
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+  /user/phones:
+    get:
+      description: retrieve all user phone
+      security:
+      - bearerAuth: []
+      responses:
+        "200":
+          description: successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Phones"
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+    delete:
+      description: delete all user phones
+      security:
+      - bearerAuth: []
+      responses:
+        "204":
+          description: all phones deleted successfully
+        "401":
+          $ref: "#/components/responses/ErrUnauthorized"
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
+
+      
+
+    
 

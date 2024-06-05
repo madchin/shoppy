@@ -10,7 +10,9 @@ type PhoneDTO struct {
 	uuid   string
 	number string
 }
+
 type PhonesDTO []PhoneDTO
+
 type PhoneRepository struct {
 	db *sql.DB
 }
