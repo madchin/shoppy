@@ -19,6 +19,68 @@ func NewHttpServer(app app.Application) ServerInterface {
 	return httpServer{app}
 }
 
+func (h httpServer) GetUserPhones(w http.ResponseWriter, r *http.Request) {
+	uuid := ""
+	retrievePhones := query.NewRetrievePhones(uuid)
+	phones, err := h.app.Query.RetrievePhones.Handle(retrievePhones)
+	if err.Error() != "" {
+		httperror.ErrorHandler(w, r, err)
+		return
+	}
+	numbers := phones.AllPhoneNumbers()
+	server.SuccessWithBody(w, http.StatusCreated, Phones{Numbers: &numbers})
+}
+
+func (h httpServer) DeleteUserPhone(w http.ResponseWriter, r *http.Request, params DeleteUserPhoneParams) {
+	uuid := ""
+	deletePhone := command.NewDeletePhone(uuid, user.NewPhone(params.Number))
+	err := h.app.Command.DeleteOnePhone.Handle(deletePhone)
+	if err.Error() != "" {
+		httperror.ErrorHandler(w, r, err)
+		return
+	}
+	server.Success(w, http.StatusNoContent)
+}
+
+func (h httpServer) DeleteUserPhones(w http.ResponseWriter, r *http.Request) {
+	uuid := ""
+	deleteAllPhones := command.NewDeleteAllPhones(uuid)
+	err := h.app.Command.DeleteAllPhones.Handle(deleteAllPhones)
+	if err.Error() != "" {
+		httperror.ErrorHandler(w, r, err)
+		return
+	}
+	server.Success(w, http.StatusNoContent)
+}
+
+func (h httpServer) PostUserPhone(w http.ResponseWriter, r *http.Request, params PostUserPhoneParams) {
+	uuid := ""
+	domainPhone := user.NewPhone(params.Number)
+	createPhone := command.NewCreatePhone(uuid, domainPhone)
+	if err := h.app.Command.CreatePhone.Handle(createPhone); err.Error() != "" {
+		httperror.ErrorHandler(w, r, err)
+		return
+	}
+	number := domainPhone.Number()
+	server.SuccessWithBody(w, http.StatusCreated, Phone{Number: &number})
+}
+
+func (h httpServer) PutUserPhone(w http.ResponseWriter, r *http.Request, params PutUserPhoneParams) {
+	uuid := ""
+	nextPhone, err := server.DecodeJSON[user.Phone](r.Body)
+	if err != nil {
+		httperror.ErrorHandler(w, r, custom_error.UnknownError("user phone add"))
+		return
+	}
+	updatePhone := command.NewUpdatePhone(uuid, params.PreviousNumber, *nextPhone)
+	if err := h.app.Command.UpdatePhone.Handle(updatePhone); err.Error() != "" {
+		httperror.ErrorHandler(w, r, err)
+		return
+	}
+	number := nextPhone.Number()
+	server.SuccessWithBody(w, http.StatusOK, Phone{Number: &number})
+}
+
 func (h httpServer) DeleteUserDetail(w http.ResponseWriter, r *http.Request) {
 	uuid := ""
 	user := command.NewDeleteUserDetail(uuid)

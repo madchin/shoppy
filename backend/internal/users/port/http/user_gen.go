@@ -29,7 +29,9 @@ type Phone struct {
 }
 
 // Phones list of phones
-type Phones = []string
+type Phones struct {
+	Numbers *[]string `json:"numbers,omitempty"`
+}
 
 // User Retrieved / Created user
 type User struct {

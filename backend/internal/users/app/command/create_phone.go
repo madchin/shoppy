@@ -19,6 +19,10 @@ type createPhoneHandler struct {
 
 type CreatePhoneHandler decorator.CommandHandler[createPhone]
 
+func NewCreatePhone(userUuid string, phone user.Phone) createPhone {
+	return createPhone{userUuid, phone}
+}
+
 func NewCreatePhoneHandler(phoneRepository user.PhoneRepository, logger *logrus.Entry) CreatePhoneHandler {
 	return decorator.ApplyCommandHandler(createPhoneHandler{phoneRepository}, logger)
 }

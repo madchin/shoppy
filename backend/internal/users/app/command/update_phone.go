@@ -20,6 +20,10 @@ type updatePhoneHandler struct {
 
 type UpdatePhoneHandler decorator.CommandHandler[updatePhone]
 
+func NewUpdatePhone(userUuid string, prevNumber string, phone user.Phone) updatePhone {
+	return updatePhone{userUuid, prevNumber, phone}
+}
+
 func NewUpdatePhoneHandler(pr user.PhoneRepository, logger *logrus.Entry) UpdatePhoneHandler {
 	return decorator.ApplyCommandHandler(updatePhoneHandler{pr}, logger)
 }

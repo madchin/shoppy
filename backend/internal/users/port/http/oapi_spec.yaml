@@ -73,9 +73,12 @@ components:
           type: string
     Phones:
       description: list of phones
-      type: array
-      items:
-        type: string
+      type: object
+      properties: 
+        numbers:
+          type: array
+          items:
+            type: string
   responses:
     ErrUserNotFound:
         description: User with provided id has not been found

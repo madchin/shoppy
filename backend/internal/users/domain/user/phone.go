@@ -35,6 +35,14 @@ func (phones Phones) NumberExist(number string) bool {
 	return deletePhoneExists
 }
 
+func (phones Phones) AllPhoneNumbers() []string {
+	var phoneNumbers []string
+	for _, phone := range phones {
+		phoneNumbers = append(phoneNumbers, phone.number)
+	}
+	return phoneNumbers
+}
+
 func (phone Phone) Validate() (errs []error) {
 	return phone.validateNumber()
 }

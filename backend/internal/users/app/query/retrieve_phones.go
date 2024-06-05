@@ -18,6 +18,10 @@ type retrievePhonesHandler struct {
 
 type RetrievePhonesHandler decorator.QueryHandler[retrievePhones, user.Phones]
 
+func NewRetrievePhones(userUuid string) retrievePhones {
+	return retrievePhones{userUuid}
+}
+
 func NewRetrievePhonesHandler(pr user.PhoneRepository, logger *logrus.Entry) RetrievePhonesHandler {
 	return decorator.ApplyQueryHandler(retrievePhonesHandler{pr}, logger)
 }

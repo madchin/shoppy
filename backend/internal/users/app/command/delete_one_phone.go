@@ -19,6 +19,10 @@ type deletePhoneHandler struct {
 
 type DeleteOnePhoneHandler decorator.CommandHandler[deletePhone]
 
+func NewDeletePhone(userUuid string, phone user.Phone) deletePhone {
+	return deletePhone{userUuid, phone}
+}
+
 func NewDeleteOnePhoneHandler(pr user.PhoneRepository, logger *logrus.Entry) DeleteOnePhoneHandler {
 	return decorator.ApplyCommandHandler(deletePhoneHandler{pr}, logger)
 }

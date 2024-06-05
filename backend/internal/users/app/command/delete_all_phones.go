@@ -18,6 +18,10 @@ type deleteAllPhonesHandler struct {
 
 type DeleteAllPhonesHandler decorator.CommandHandler[deleteAllPhones]
 
+func NewDeleteAllPhones(userUuid string) deleteAllPhones {
+	return deleteAllPhones{userUuid}
+}
+
 func NewDeleteAllPhonesHandler(pr user.PhoneRepository, logger *logrus.Entry) DeleteAllPhonesHandler {
 	return decorator.ApplyCommandHandler(deleteAllPhonesHandler{pr}, logger)
 }
