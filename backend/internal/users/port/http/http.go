@@ -7,7 +7,6 @@ import (
 	"backend/internal/users/app/command"
 	"backend/internal/users/app/query"
 	"backend/internal/users/domain/user"
-	"backend/internal/users/port/http/httperror"
 	"net/http"
 )
 
@@ -24,7 +23,7 @@ func (h httpServer) GetUserPhones(w http.ResponseWriter, r *http.Request) {
 	retrievePhones := query.NewRetrievePhones(uuid)
 	phones, err := h.app.Query.RetrievePhones.Handle(retrievePhones)
 	if err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	numbers := phones.AllPhoneNumbers()
@@ -36,7 +35,7 @@ func (h httpServer) DeleteUserPhone(w http.ResponseWriter, r *http.Request, para
 	deletePhone := command.NewDeletePhone(uuid, user.NewPhone(params.Number))
 	err := h.app.Command.DeleteOnePhone.Handle(deletePhone)
 	if err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	server.Success(w, http.StatusNoContent)
@@ -47,7 +46,7 @@ func (h httpServer) DeleteUserPhones(w http.ResponseWriter, r *http.Request) {
 	deleteAllPhones := command.NewDeleteAllPhones(uuid)
 	err := h.app.Command.DeleteAllPhones.Handle(deleteAllPhones)
 	if err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	server.Success(w, http.StatusNoContent)
@@ -58,7 +57,7 @@ func (h httpServer) PostUserPhone(w http.ResponseWriter, r *http.Request, params
 	domainPhone := user.NewPhone(params.Number)
 	createPhone := command.NewCreatePhone(uuid, domainPhone)
 	if err := h.app.Command.CreatePhone.Handle(createPhone); err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	number := domainPhone.Number()
@@ -69,12 +68,12 @@ func (h httpServer) PutUserPhone(w http.ResponseWriter, r *http.Request, params 
 	uuid := ""
 	nextPhone, err := server.DecodeJSON[user.Phone](r.Body)
 	if err != nil {
-		httperror.ErrorHandler(w, r, custom_error.UnknownError("user phone add"))
+		server.ErrorHandler(w, r, custom_error.UnknownError("user phone add"))
 		return
 	}
 	updatePhone := command.NewUpdatePhone(uuid, params.PreviousNumber, *nextPhone)
 	if err := h.app.Command.UpdatePhone.Handle(updatePhone); err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	number := nextPhone.Number()
@@ -86,7 +85,7 @@ func (h httpServer) DeleteUserDetail(w http.ResponseWriter, r *http.Request) {
 	user := command.NewDeleteUserDetail(uuid)
 	err := h.app.Command.DeleteUserDetail.Handle(user)
 	if err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	server.Success(w, http.StatusNoContent)
@@ -97,7 +96,7 @@ func (h httpServer) GetUserDetail(w http.ResponseWriter, r *http.Request) {
 	user := query.NewRetrieveUserDetail(uuid)
 	u, err := h.app.Query.RetrieveUserDetail.Handle(user)
 	if err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	firstName, lastName := u.FirstName(), u.LastName()
@@ -108,13 +107,13 @@ func (h httpServer) PostUserDetail(w http.ResponseWriter, r *http.Request) {
 	uuid := ""
 	decodedUser, err := server.DecodeJSON[UserDetail](r.Body)
 	if err != nil {
-		httperror.ErrorHandler(w, r, custom_error.UnknownError("user detail add"))
+		server.ErrorHandler(w, r, custom_error.UnknownError("user detail add"))
 		return
 	}
 	domainUser := user.NewUserDetail(*decodedUser.FirstName, *decodedUser.LastName)
 	createUserDetail := command.NewCreateUserDetail(uuid, domainUser)
 	if err := h.app.Command.CreateUserDetail.Handle(createUserDetail); err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	firstName, lastName := domainUser.FirstName(), domainUser.LastName()
@@ -125,7 +124,7 @@ func (h httpServer) PutUserDetailUpdateFirstName(w http.ResponseWriter, r *http.
 	uuid := ""
 	updateUserDetailFirstName := command.NewUpdateUserDetailFirstName(uuid, params.FirstName)
 	if err := h.app.Command.UpdateUserDetailFirstName.Handle(updateUserDetailFirstName); err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	server.SuccessWithBody(w, http.StatusOK, UserDetail{FirstName: &params.FirstName})
@@ -135,7 +134,7 @@ func (h httpServer) PutUserDetailUpdateLastName(w http.ResponseWriter, r *http.R
 	uuid := ""
 	updateUserDetailLastName := command.NewUpdateUserDetailLastName(uuid, params.LastName)
 	if err := h.app.Command.UpdateUserDetailLastName.Handle(updateUserDetailLastName); err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	server.SuccessWithBody(w, http.StatusOK, UserDetail{LastName: &params.LastName})
@@ -146,7 +145,7 @@ func (h httpServer) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	user := command.NewDeleteUser(uuid)
 	err := h.app.Command.DeleteUser.Handle(user)
 	if err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	server.Success(w, http.StatusNoContent)
@@ -157,7 +156,7 @@ func (h httpServer) GetUser(w http.ResponseWriter, r *http.Request) {
 	user := query.NewRetrieveUser(uuid)
 	u, err := h.app.Query.RetrieveUser.Handle(user)
 	if err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	server.SuccessWithBody(w, http.StatusOK, User{Email: u.Email(), Name: u.Name()})
@@ -167,13 +166,13 @@ func (h httpServer) PostUser(w http.ResponseWriter, r *http.Request) {
 	uuid := ""
 	decodedUser, err := server.DecodeJSON[User](r.Body)
 	if err != nil {
-		httperror.ErrorHandler(w, r, custom_error.UnknownError("user add"))
+		server.ErrorHandler(w, r, custom_error.UnknownError("user add"))
 		return
 	}
 	domainUser := user.NewUser(decodedUser.Name, decodedUser.Email, *decodedUser.Password)
 	registerUser := command.NewRegisterUser(uuid, domainUser)
 	if err := h.app.Command.RegisterUser.Handle(registerUser); err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	email, name, password := domainUser.Email(), domainUser.Name(), domainUser.Password()
@@ -184,7 +183,7 @@ func (h httpServer) PutUserUpdateEmail(w http.ResponseWriter, r *http.Request, p
 	uuid := ""
 	updateUserEmail := command.NewUpdateUserEmail(uuid, params.Email)
 	if err := h.app.Command.UpdateUserEmail.Handle(updateUserEmail); err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	server.SuccessWithBody(w, http.StatusOK, User{Email: params.Email})
@@ -194,7 +193,7 @@ func (h httpServer) PutUserUpdateName(w http.ResponseWriter, r *http.Request, pa
 	uuid := ""
 	updateUserName := command.NewUpdateUserName(uuid, params.Name)
 	if err := h.app.Command.UpdateUserName.Handle(updateUserName); err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	server.SuccessWithBody(w, http.StatusOK, User{Name: params.Name})
@@ -204,7 +203,7 @@ func (h httpServer) PutUserUpdatePassword(w http.ResponseWriter, r *http.Request
 	uuid := ""
 	updateUserPassword := command.NewUpdateUserPassword(uuid, params.Password)
 	if err := h.app.Command.UpdateUserPassword.Handle(updateUserPassword); err.Error() != "" {
-		httperror.ErrorHandler(w, r, err)
+		server.ErrorHandler(w, r, err)
 		return
 	}
 	server.Success(w, http.StatusOK)

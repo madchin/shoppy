@@ -12,5 +12,10 @@
 
 ---
 
+## Release 0.2.0
+
+### Adapt clean architecture with CQRS pattern
+### Add oapi specification
+
 #### Inspired with:
 [threedots.tech](https://threedots.tech/series/modern-business-software-in-go/)
