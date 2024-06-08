@@ -15,7 +15,20 @@ func NewHttpError(context string, desc string) HttpError {
 	return HttpError{context, desc}
 }
 
-func ParseCustomErrToHttpErrors(customError custom_error.ContextError) []HttpError {
+func ErrorHandler(w http.ResponseWriter, r *http.Request, err custom_error.ContextError) {
+	httpErrs := parseCustomErrToHttpErrors(err)
+	switch err.Type() {
+	case custom_error.ErrorTypeAuthorization:
+		unauthorized(w, httpErrs...)
+	case custom_error.ErrorTypeValidation:
+	case custom_error.ErrorTypePersistence:
+		badRequest(w, httpErrs...)
+	default:
+		internal(w, httpErrs...)
+	}
+}
+
+func parseCustomErrToHttpErrors(customError custom_error.ContextError) []HttpError {
 	httpErrs := make([]HttpError, 0)
 	for _, cerr := range customError.Errors() {
 		httpErrs = append(httpErrs, NewHttpError(customError.Type().String(), cerr.Error()))
@@ -23,25 +36,21 @@ func ParseCustomErrToHttpErrors(customError custom_error.ContextError) []HttpErr
 	return httpErrs
 }
 
-func ErrorResponse(w http.ResponseWriter, status int, err ...HttpError) {
+func errorResponse(w http.ResponseWriter, status int, err ...HttpError) {
 	w.Header().Set("Content-Type", "application/json")
 	msg, _ := json.Marshal(err)
 	w.WriteHeader(status)
 	w.Write(msg)
 }
 
-func NotFound(w http.ResponseWriter, err ...HttpError) {
-	ErrorResponse(w, http.StatusNotFound, err...)
+func unauthorized(w http.ResponseWriter, err ...HttpError) {
+	errorResponse(w, http.StatusUnauthorized, err...)
 }
 
-func Unauthorized(w http.ResponseWriter, err ...HttpError) {
-	ErrorResponse(w, http.StatusUnauthorized, err...)
+func badRequest(w http.ResponseWriter, err ...HttpError) {
+	errorResponse(w, http.StatusBadRequest, err...)
 }
 
-func BadRequest(w http.ResponseWriter, err ...HttpError) {
-	ErrorResponse(w, http.StatusBadRequest, err...)
-}
-
-func Internal(w http.ResponseWriter, err ...HttpError) {
-	ErrorResponse(w, http.StatusInternalServerError, err...)
+func internal(w http.ResponseWriter, err ...HttpError) {
+	errorResponse(w, http.StatusInternalServerError, err...)
 }
