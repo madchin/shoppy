@@ -9,8 +9,6 @@ type Address struct {
 	city       string
 }
 
-const ()
-
 func NewAddress(postalCode string, street string, country string, city string) Address {
 	return Address{postalCode, street, country, city}
 }

@@ -73,3 +73,27 @@ type PhoneRepository interface {
 		userUuid string,
 	) custom_error.ContextError
 }
+
+type AddressRepository interface {
+	Create(
+		userUuid string,
+		address Address,
+		validateFn func(Address) []error,
+	) custom_error.ContextError
+	Get(
+		userUuid string,
+	) (Address, custom_error.ContextError)
+	Update(
+		userUuid string,
+		addressStreet string,
+		address Address,
+		validateFn func(Address) []error,
+	) custom_error.ContextError
+	DeleteAddress(
+		userUuid string,
+		street string,
+	) custom_error.ContextError
+	DeleteAll(
+		userUuid string,
+	) custom_error.ContextError
+}
