@@ -10,7 +10,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type userDTO struct {
+type userDto struct {
 	uuid     string
 	name     string
 	email    string
@@ -28,7 +28,7 @@ func NewUserRepository(db *sql.DB) user.Repository {
 }
 
 func (ur *UserRepository) Get(uuid string) (user.User, custom_error.ContextError) {
-	userDto := userDTO{}
+	userDto := userDto{}
 	err := ur.db.QueryRow("SELECT * FROM Users WHERE uuid=?", uuid).Scan(&userDto.uuid, &userDto.name, &userDto.email, &userDto.password)
 	if err == sql.ErrNoRows {
 		return user.User{}, custom_error.NewPersistenceError("user retrieve", "user with provided uuid not found")
@@ -38,7 +38,7 @@ func (ur *UserRepository) Get(uuid string) (user.User, custom_error.ContextError
 		return user.User{}, custom_error.UnknownPersistenceError("user retrieve")
 	}
 
-	domainUser := user.NewUser(userDto.name, userDto.email, userDto.password)
+	domainUser := userDto.mapToDomainUser()
 	return domainUser, custom_error.ContextError{}
 }
 func (ur *UserRepository) Create(uuid string, u user.User, createFn func(user.User) []error) custom_error.ContextError {
@@ -119,4 +119,8 @@ func (ur *UserRepository) Delete(uuid string) custom_error.ContextError {
 	}
 
 	return custom_error.ContextError{}
+}
+
+func (ur userDto) mapToDomainUser() user.User {
+	return user.NewUser(ur.name, ur.email, ur.password)
 }

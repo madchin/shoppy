@@ -6,12 +6,12 @@ import (
 	"database/sql"
 )
 
-type PhoneDTO struct {
+type phoneDto struct {
 	uuid   string
 	number string
 }
 
-type PhonesDTO []PhoneDTO
+type phonesDto []phoneDto
 
 type PhoneRepository struct {
 	db *sql.DB
@@ -33,9 +33,9 @@ func (p PhoneRepository) Get(userUuid string) (user.Phones, custom_error.Context
 	}
 	defer rows.Close()
 
-	phonesDto := PhonesDTO{}
+	phonesDto := phonesDto{}
 	for rows.Next() {
-		phoneDto := PhoneDTO{}
+		phoneDto := phoneDto{}
 		if err := rows.Scan(&phoneDto.uuid, &phoneDto.number); err != nil {
 			return nil, custom_error.UnknownPersistenceError("phone retrieve")
 		}
@@ -43,7 +43,7 @@ func (p PhoneRepository) Get(userUuid string) (user.Phones, custom_error.Context
 		phonesDto = append(phonesDto, phoneDto)
 	}
 
-	phones := mapPhonesDtoToDomainPhones(phonesDto)
+	phones := phonesDto.mapToDomainPhones()
 	return phones, custom_error.ContextError{}
 }
 
@@ -103,9 +103,9 @@ func (ur PhoneRepository) DeleteAll(userUuid string) custom_error.ContextError {
 	return custom_error.ContextError{}
 }
 
-func mapPhonesDtoToDomainPhones(phonesDTO PhonesDTO) user.Phones {
+func (phonesDto phonesDto) mapToDomainPhones() user.Phones {
 	var phones user.Phones
-	for _, phoneDto := range phonesDTO {
+	for _, phoneDto := range phonesDto {
 		phone := user.NewPhone(phoneDto.number)
 		phones = append(phones, phone)
 	}
