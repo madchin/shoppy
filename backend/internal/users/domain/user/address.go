@@ -28,6 +28,15 @@ func (a Address) City() string {
 	return a.city
 }
 
+func (adresses Addresses) AddressExists(street string) bool {
+	for _, address := range adresses {
+		if address.street == street {
+			return true
+		}
+	}
+	return false
+}
+
 func (a Address) validatePostalCode() (err error) {
 	if a.postalCode == "" {
 		err = errors.New("postal code is empty")
