@@ -17,13 +17,13 @@ type deleteOneAddressHandler struct {
 	repo user.AddressRepository
 }
 
-type DeleteAddressHandler decorator.CommandHandler[deleteOneAddress]
+type DeleteOneAddressHandler decorator.CommandHandler[deleteOneAddress]
 
 func NewDeleteAddress(userUuid string, street string) deleteOneAddress {
 	return deleteOneAddress{userUuid, street}
 }
 
-func NewDeleteAddressHandler(repo user.AddressRepository, logger *logrus.Entry) DeleteAddressHandler {
+func NewDeleteOneAddressHandler(repo user.AddressRepository, logger *logrus.Entry) DeleteOneAddressHandler {
 	return decorator.ApplyCommandHandler(deleteOneAddressHandler{repo}, logger)
 }
 

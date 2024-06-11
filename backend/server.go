@@ -20,9 +20,10 @@ func main() {
 	userRepository := adapters.NewUserRepository(database)
 	userDetailRepository := adapters.NewUserDetailRepository(database)
 	phoneRepository := adapters.NewPhoneRepository(database)
+	addressRepository := adapters.NewAddressRepository(database)
 
 	logger := logrus.New()
-	app := app.NewApplication(userRepository, userDetailRepository, phoneRepository, logrus.NewEntry(logger))
+	app := app.NewApplication(userRepository, userDetailRepository, phoneRepository, addressRepository, logrus.NewEntry(logger))
 
 	httpServer := ports.NewHttpServer(app)
 	httpPort := os.Getenv("HTTP_PORT")

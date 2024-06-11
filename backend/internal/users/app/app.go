@@ -24,12 +24,17 @@ type Command struct {
 	UpdatePhone               command.UpdatePhoneHandler
 	DeleteOnePhone            command.DeleteOnePhoneHandler
 	DeleteAllPhones           command.DeleteAllPhonesHandler
+	CreateAddress             command.CreateAddressHandler
+	DeleteOneAddress          command.DeleteOneAddressHandler
+	DeleteAllAddresses        command.DeleteAllAddressesHandler
+	UpdateAddress             command.UpdateAddressHandler
 }
 
 type Query struct {
 	RetrieveUser       query.RetrieveUserHandler
 	RetrieveUserDetail query.RetrieveUserDetailHandler
 	RetrievePhones     query.RetrievePhonesHandler
+	RetrieveAddresses  query.RetrieveAddressesHandler
 }
 
 type Application struct {
@@ -41,7 +46,9 @@ func NewApplication(
 	userRepository user.Repository,
 	userDetailRepository user.DetailRepository,
 	phoneRepository user.PhoneRepository,
-	logger *logrus.Entry) Application {
+	addressRepository user.AddressRepository,
+	logger *logrus.Entry,
+) Application {
 	return Application{
 		Command: Command{
 			RegisterUser:              command.NewRegisterUserHandler(userRepository, logger),
@@ -57,11 +64,16 @@ func NewApplication(
 			UpdatePhone:               command.NewUpdatePhoneHandler(phoneRepository, logger),
 			DeleteOnePhone:            command.NewDeleteOnePhoneHandler(phoneRepository, logger),
 			DeleteAllPhones:           command.NewDeleteAllPhonesHandler(phoneRepository, logger),
+			CreateAddress:             command.NewCreateAddressHandler(addressRepository, logger),
+			DeleteAllAddresses:        command.NewDeleteAllAddressesHandler(addressRepository, logger),
+			DeleteOneAddress:          command.NewDeleteOneAddressHandler(addressRepository, logger),
+			UpdateAddress:             command.NewUpdateAddressHandler(addressRepository, logger),
 		},
 		Query: Query{
 			RetrieveUser:       query.NewRetrieveUserHandler(userRepository, logger),
 			RetrieveUserDetail: query.NewRetrieveUserDetailHandler(userDetailRepository, logger),
 			RetrievePhones:     query.NewRetrievePhonesHandler(phoneRepository, logger),
+			RetrieveAddresses:  query.NewRetrieveAddressesHandler(addressRepository, logger),
 		},
 	}
 }

@@ -16,13 +16,13 @@ type retrieveAddressesHandler struct {
 	repo user.AddressRepository
 }
 
-type RetrieveAddressHandler decorator.QueryHandler[retrieveAddresses, user.Addresses]
+type RetrieveAddressesHandler decorator.QueryHandler[retrieveAddresses, user.Addresses]
 
-func NewRetrieveAddress(userUuid string) retrieveAddresses {
+func NewRetrieveAddresses(userUuid string) retrieveAddresses {
 	return retrieveAddresses{userUuid}
 }
 
-func NewRetrieveAddressHandler(ar user.AddressRepository, logger *logrus.Entry) RetrieveAddressHandler {
+func NewRetrieveAddressesHandler(ar user.AddressRepository, logger *logrus.Entry) RetrieveAddressesHandler {
 	return decorator.ApplyQueryHandler(retrieveAddressesHandler{ar}, logger)
 }
 
