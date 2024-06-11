@@ -8,24 +8,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type retrieveAddress struct {
+type retrieveAddresses struct {
 	userUuid string
 }
 
-type retrieveAddressHandler struct {
+type retrieveAddressesHandler struct {
 	repo user.AddressRepository
 }
 
-type RetrieveAddressHandler decorator.QueryHandler[retrieveAddress, user.Address]
+type RetrieveAddressHandler decorator.QueryHandler[retrieveAddresses, user.Addresses]
 
-func NewRetrieveAddress(userUuid string) retrieveAddress {
-	return retrieveAddress{userUuid}
+func NewRetrieveAddress(userUuid string) retrieveAddresses {
+	return retrieveAddresses{userUuid}
 }
 
 func NewRetrieveAddressHandler(ar user.AddressRepository, logger *logrus.Entry) RetrieveAddressHandler {
-	return decorator.ApplyQueryHandler(retrieveAddressHandler{ar}, logger)
+	return decorator.ApplyQueryHandler(retrieveAddressesHandler{ar}, logger)
 }
 
-func (rah retrieveAddressHandler) Handle(q retrieveAddress) (user.Address, custom_error.ContextError) {
+func (rah retrieveAddressesHandler) Handle(q retrieveAddresses) (user.Addresses, custom_error.ContextError) {
 	return rah.repo.Get(q.userUuid)
 }

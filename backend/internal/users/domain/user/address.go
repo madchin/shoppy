@@ -9,8 +9,23 @@ type Address struct {
 	city       string
 }
 
+type Addresses []Address
+
 func NewAddress(postalCode string, street string, country string, city string) Address {
 	return Address{postalCode, street, country, city}
+}
+
+func (a Address) PostalCode() string {
+	return a.postalCode
+}
+func (a Address) Street() string {
+	return a.street
+}
+func (a Address) Country() string {
+	return a.country
+}
+func (a Address) City() string {
+	return a.city
 }
 
 func (a Address) validatePostalCode() (err error) {

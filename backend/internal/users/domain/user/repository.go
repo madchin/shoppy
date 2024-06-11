@@ -82,7 +82,7 @@ type AddressRepository interface {
 	) custom_error.ContextError
 	Get(
 		userUuid string,
-	) (Address, custom_error.ContextError)
+	) (Addresses, custom_error.ContextError)
 	Update(
 		userUuid string,
 		addressStreet string,
