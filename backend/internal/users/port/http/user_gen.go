@@ -17,6 +17,17 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Address user address
+type Address struct {
+	City       string `json:"city"`
+	Country    string `json:"country"`
+	PostalCode string `json:"postalCode"`
+	Street     string `json:"street"`
+}
+
+// Addresses list of addresses
+type Addresses = []Address
+
 // Error Basic error
 type Error struct {
 	Description string `json:"description"`
@@ -25,12 +36,12 @@ type Error struct {
 
 // Phone Retrieved / Created phone
 type Phone struct {
-	Number *string `json:"number,omitempty"`
+	Number string `json:"number"`
 }
 
 // Phones list of phones
 type Phones struct {
-	Numbers *[]string `json:"numbers,omitempty"`
+	Numbers []string `json:"numbers"`
 }
 
 // User Retrieved / Created user
@@ -47,8 +58,8 @@ type User struct {
 
 // UserDetail Retrieved / created user detail
 type UserDetail struct {
-	FirstName *string `json:"firstName,omitempty"`
-	LastName  *string `json:"lastName,omitempty"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 
 // ErrInternal Basic error
@@ -59,6 +70,18 @@ type ErrUnauthorized = Error
 
 // ErrUserNotFound Basic error
 type ErrUserNotFound = Error
+
+// DeleteUserAddressParams defines parameters for DeleteUserAddress.
+type DeleteUserAddressParams struct {
+	// Street street used to recognize which address to delete
+	Street string `form:"street" json:"street"`
+}
+
+// PutUserAddressParams defines parameters for PutUserAddress.
+type PutUserAddressParams struct {
+	// Street street used to recognize which address to update
+	Street string `form:"street" json:"street"`
+}
 
 // PutUserDetailUpdateFirstNameParams defines parameters for PutUserDetailUpdateFirstName.
 type PutUserDetailUpdateFirstNameParams struct {
@@ -111,6 +134,12 @@ type PutUserUpdatePasswordParams struct {
 // PostUserJSONRequestBody defines body for PostUser for application/json ContentType.
 type PostUserJSONRequestBody = User
 
+// PostUserAddressJSONRequestBody defines body for PostUserAddress for application/json ContentType.
+type PostUserAddressJSONRequestBody = Address
+
+// PutUserAddressJSONRequestBody defines body for PutUserAddress for application/json ContentType.
+type PutUserAddressJSONRequestBody = Address
+
 // PostUserDetailJSONRequestBody defines body for PostUserDetail for application/json ContentType.
 type PostUserDetailJSONRequestBody = UserDetail
 
@@ -128,6 +157,21 @@ type ServerInterface interface {
 
 	// (POST /user)
 	PostUser(w http.ResponseWriter, r *http.Request)
+
+	// (DELETE /user/address)
+	DeleteUserAddress(w http.ResponseWriter, r *http.Request, params DeleteUserAddressParams)
+
+	// (GET /user/address)
+	GetUserAddress(w http.ResponseWriter, r *http.Request)
+
+	// (POST /user/address)
+	PostUserAddress(w http.ResponseWriter, r *http.Request)
+
+	// (PUT /user/address)
+	PutUserAddress(w http.ResponseWriter, r *http.Request, params PutUserAddressParams)
+
+	// (DELETE /user/addresses)
+	DeleteUserAddresses(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /user/detail)
 	DeleteUserDetail(w http.ResponseWriter, r *http.Request)
@@ -218,6 +262,131 @@ func (siw *ServerInterfaceWrapper) PostUser(w http.ResponseWriter, r *http.Reque
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PostUser(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// DeleteUserAddress operation middleware
+func (siw *ServerInterfaceWrapper) DeleteUserAddress(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeleteUserAddressParams
+
+	// ------------- Required query parameter "street" -------------
+
+	if paramValue := r.URL.Query().Get("street"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "street"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "street", r.URL.Query(), &params.Street)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "street", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteUserAddress(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetUserAddress operation middleware
+func (siw *ServerInterfaceWrapper) GetUserAddress(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetUserAddress(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// PostUserAddress operation middleware
+func (siw *ServerInterfaceWrapper) PostUserAddress(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostUserAddress(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// PutUserAddress operation middleware
+func (siw *ServerInterfaceWrapper) PutUserAddress(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PutUserAddressParams
+
+	// ------------- Required query parameter "street" -------------
+
+	if paramValue := r.URL.Query().Get("street"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "street"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "street", r.URL.Query(), &params.Street)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "street", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PutUserAddress(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// DeleteUserAddresses operation middleware
+func (siw *ServerInterfaceWrapper) DeleteUserAddresses(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteUserAddresses(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -725,6 +894,11 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("DELETE "+options.BaseURL+"/user", wrapper.DeleteUser)
 	m.HandleFunc("GET "+options.BaseURL+"/user", wrapper.GetUser)
 	m.HandleFunc("POST "+options.BaseURL+"/user", wrapper.PostUser)
+	m.HandleFunc("DELETE "+options.BaseURL+"/user/address", wrapper.DeleteUserAddress)
+	m.HandleFunc("GET "+options.BaseURL+"/user/address", wrapper.GetUserAddress)
+	m.HandleFunc("POST "+options.BaseURL+"/user/address", wrapper.PostUserAddress)
+	m.HandleFunc("PUT "+options.BaseURL+"/user/address", wrapper.PutUserAddress)
+	m.HandleFunc("DELETE "+options.BaseURL+"/user/addresses", wrapper.DeleteUserAddresses)
 	m.HandleFunc("DELETE "+options.BaseURL+"/user/detail", wrapper.DeleteUserDetail)
 	m.HandleFunc("GET "+options.BaseURL+"/user/detail", wrapper.GetUserDetail)
 	m.HandleFunc("POST "+options.BaseURL+"/user/detail", wrapper.PostUserDetail)

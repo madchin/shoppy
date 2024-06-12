@@ -27,7 +27,7 @@ func (h httpServer) GetUserPhones(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	numbers := phones.AllPhoneNumbers()
-	server.SuccessWithBody(w, http.StatusCreated, Phones{Numbers: &numbers})
+	server.SuccessWithBody(w, http.StatusCreated, Phones{Numbers: numbers})
 }
 
 func (h httpServer) DeleteUserPhone(w http.ResponseWriter, r *http.Request, params DeleteUserPhoneParams) {
@@ -61,7 +61,7 @@ func (h httpServer) PostUserPhone(w http.ResponseWriter, r *http.Request, params
 		return
 	}
 	number := domainPhone.Number()
-	server.SuccessWithBody(w, http.StatusCreated, Phone{Number: &number})
+	server.SuccessWithBody(w, http.StatusCreated, Phone{Number: number})
 }
 
 func (h httpServer) PutUserPhone(w http.ResponseWriter, r *http.Request, params PutUserPhoneParams) {
@@ -77,7 +77,7 @@ func (h httpServer) PutUserPhone(w http.ResponseWriter, r *http.Request, params 
 		return
 	}
 	number := nextPhone.Number()
-	server.SuccessWithBody(w, http.StatusOK, Phone{Number: &number})
+	server.SuccessWithBody(w, http.StatusOK, Phone{Number: number})
 }
 
 func (h httpServer) DeleteUserDetail(w http.ResponseWriter, r *http.Request) {
@@ -100,7 +100,7 @@ func (h httpServer) GetUserDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	firstName, lastName := u.FirstName(), u.LastName()
-	server.SuccessWithBody(w, http.StatusOK, UserDetail{FirstName: &firstName, LastName: &lastName})
+	server.SuccessWithBody(w, http.StatusOK, UserDetail{FirstName: firstName, LastName: lastName})
 }
 
 func (h httpServer) PostUserDetail(w http.ResponseWriter, r *http.Request) {
@@ -110,14 +110,14 @@ func (h httpServer) PostUserDetail(w http.ResponseWriter, r *http.Request) {
 		server.ErrorHandler(w, r, custom_error.UnknownError("user detail add"))
 		return
 	}
-	domainUser := user.NewUserDetail(*decodedUser.FirstName, *decodedUser.LastName)
+	domainUser := user.NewUserDetail(decodedUser.FirstName, decodedUser.LastName)
 	createUserDetail := command.NewCreateUserDetail(uuid, domainUser)
 	if err := h.app.Command.CreateUserDetail.Handle(createUserDetail); err.Error() != "" {
 		server.ErrorHandler(w, r, err)
 		return
 	}
 	firstName, lastName := domainUser.FirstName(), domainUser.LastName()
-	server.SuccessWithBody(w, http.StatusCreated, UserDetail{FirstName: &firstName, LastName: &lastName})
+	server.SuccessWithBody(w, http.StatusCreated, UserDetail{FirstName: firstName, LastName: lastName})
 }
 
 func (h httpServer) PutUserDetailUpdateFirstName(w http.ResponseWriter, r *http.Request, params PutUserDetailUpdateFirstNameParams) {
@@ -127,7 +127,7 @@ func (h httpServer) PutUserDetailUpdateFirstName(w http.ResponseWriter, r *http.
 		server.ErrorHandler(w, r, err)
 		return
 	}
-	server.SuccessWithBody(w, http.StatusOK, UserDetail{FirstName: &params.FirstName})
+	server.SuccessWithBody(w, http.StatusOK, UserDetail{FirstName: params.FirstName})
 }
 
 func (h httpServer) PutUserDetailUpdateLastName(w http.ResponseWriter, r *http.Request, params PutUserDetailUpdateLastNameParams) {
@@ -137,7 +137,7 @@ func (h httpServer) PutUserDetailUpdateLastName(w http.ResponseWriter, r *http.R
 		server.ErrorHandler(w, r, err)
 		return
 	}
-	server.SuccessWithBody(w, http.StatusOK, UserDetail{LastName: &params.LastName})
+	server.SuccessWithBody(w, http.StatusOK, UserDetail{LastName: params.LastName})
 }
 
 func (h httpServer) DeleteUser(w http.ResponseWriter, r *http.Request) {
