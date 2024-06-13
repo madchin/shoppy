@@ -48,7 +48,7 @@ func (h httpServer) GetUserAddress(w http.ResponseWriter, r *http.Request) {
 		server.ErrorHandler(w, r, err)
 		return
 	}
-	responseBody := mapDomainAddressesToResponseAddresses(addresses)
+	responseBody := mapDomainAddressesToHttpAddresses(addresses)
 	server.SuccessWithBody(w, http.StatusOK, responseBody)
 }
 
@@ -132,12 +132,13 @@ func (h httpServer) PostUserPhone(w http.ResponseWriter, r *http.Request, params
 
 func (h httpServer) PutUserPhone(w http.ResponseWriter, r *http.Request, params PutUserPhoneParams) {
 	uuid := ""
-	nextPhone, err := server.DecodeJSON[user.Phone](r.Body)
+	phone, err := server.DecodeJSON[Phone](r.Body)
 	if err != nil {
 		server.ErrorHandler(w, r, custom_error.UnknownError("user phone add"))
 		return
 	}
-	updatePhone := command.NewUpdatePhone(uuid, params.PreviousNumber, *nextPhone)
+	nextPhone := user.NewPhone(phone.Number)
+	updatePhone := command.NewUpdatePhone(uuid, params.PreviousNumber, nextPhone)
 	if err := h.app.Command.UpdatePhone.Handle(updatePhone); err.Error() != "" {
 		server.ErrorHandler(w, r, err)
 		return
