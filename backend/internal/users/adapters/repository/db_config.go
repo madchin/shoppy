@@ -51,7 +51,7 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Addresses (uuid varchar(36), id int AUTO_INCREMENT, postalCode varchar(64), address varchar(255), country varchar(128), city varchar(128), PRIMARY KEY (id), FOREIGN KEY (uuid) REFERENCES Users(uuid) ON DELETE CASCADE)")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Addresses (uuid varchar(36), id int AUTO_INCREMENT, postalCode varchar(64), street varchar(255), country varchar(128), city varchar(128), PRIMARY KEY (id), FOREIGN KEY (uuid) REFERENCES Users(uuid) ON DELETE CASCADE)")
 	if err != nil {
 		return err
 	}

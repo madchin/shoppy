@@ -7,7 +7,7 @@ import (
 	"database/sql"
 )
 
-type UserDetailDTO struct {
+type userDetailDto struct {
 	uuid      string
 	firstName string
 	lastName  string
@@ -22,12 +22,12 @@ type UserDetailRepository struct {
 }
 
 func (ur UserDetailRepository) Get(userUuid string) (user.UserDetail, custom_error.ContextError) {
-	userDetail := UserDetailDTO{}
-	err := ur.db.QueryRow("SELECT * FROM UserDetails WHERE uuid=?", userUuid).Scan(&userDetail.uuid, &userDetail.firstName, &userDetail.lastName)
+	userDetailDto := userDetailDto{}
+	err := ur.db.QueryRow("SELECT * FROM UserDetails WHERE uuid=?", userUuid).Scan(&userDetailDto.uuid, &userDetailDto.firstName, &userDetailDto.lastName)
 	if err == sql.ErrNoRows {
 		return user.UserDetail{}, custom_error.NewPersistenceError("user detail retrieve", "user with provided uuid not found")
 	}
-	domainUserDetail := user.NewUserDetail(userDetail.firstName, userDetail.lastName)
+	domainUserDetail := userDetailDto.mapToDomainUserDetail()
 	return domainUserDetail, custom_error.ContextError{}
 }
 
@@ -84,4 +84,8 @@ func (ur UserDetailRepository) Delete(userUuid string) custom_error.ContextError
 		return custom_error.UnknownPersistenceError("user detail deletion")
 	}
 	return custom_error.ContextError{}
+}
+
+func (ud userDetailDto) mapToDomainUserDetail() user.UserDetail {
+	return user.NewUserDetail(ud.firstName, ud.lastName)
 }
