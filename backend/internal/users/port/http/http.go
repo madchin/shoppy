@@ -18,6 +18,72 @@ func NewHttpServer(app app.Application) ServerInterface {
 	return httpServer{app}
 }
 
+func (h httpServer) DeleteUserAddress(w http.ResponseWriter, r *http.Request, params DeleteUserAddressParams) {
+	uuid := ""
+	deleteAddress := command.NewDeleteAddress(uuid, params.Street)
+	err := h.app.Command.DeleteOneAddress.Handle(deleteAddress)
+	if err.Error() != "" {
+		server.ErrorHandler(w, r, err)
+		return
+	}
+	server.Success(w, http.StatusNoContent)
+}
+
+func (h httpServer) DeleteUserAddresses(w http.ResponseWriter, r *http.Request) {
+	uuid := ""
+	deleteAddresses := command.NewDeleteAllAddresses(uuid)
+	err := h.app.Command.DeleteAllAddresses.Handle(deleteAddresses)
+	if err.Error() != "" {
+		server.ErrorHandler(w, r, err)
+		return
+	}
+	server.Success(w, http.StatusNoContent)
+}
+
+func (h httpServer) GetUserAddress(w http.ResponseWriter, r *http.Request) {
+	uuid := ""
+	retrieveAddress := query.NewRetrieveAddresses(uuid)
+	addresses, err := h.app.Query.RetrieveAddresses.Handle(retrieveAddress)
+	if err.Error() != "" {
+		server.ErrorHandler(w, r, err)
+		return
+	}
+	responseBody := mapDomainAddressesToResponseAddresses(addresses)
+	server.SuccessWithBody(w, http.StatusOK, responseBody)
+}
+
+func (h httpServer) PostUserAddress(w http.ResponseWriter, r *http.Request) {
+	uuid := ""
+	address, err := server.DecodeJSON[Address](r.Body)
+	if err != nil {
+		server.ErrorHandler(w, r, custom_error.UnknownError("user address add"))
+	}
+	domainAddress := user.NewAddress(address.PostalCode, address.Street, address.Country, address.City)
+	createAddress := command.NewCreateAddress(uuid, domainAddress)
+	cerr := h.app.Command.CreateAddress.Handle(createAddress)
+	if cerr.Error() != "" {
+		server.ErrorHandler(w, r, cerr)
+		return
+	}
+	server.SuccessWithBody(w, http.StatusCreated, Address{City: address.City, Country: address.Country, PostalCode: address.PostalCode, Street: address.Street})
+}
+
+func (h httpServer) PutUserAddress(w http.ResponseWriter, r *http.Request, params PutUserAddressParams) {
+	uuid := ""
+	address, err := server.DecodeJSON[Address](r.Body)
+	if err != nil {
+		server.ErrorHandler(w, r, custom_error.UnknownError("user address add"))
+	}
+	domainAddress := user.NewAddress(address.PostalCode, address.Street, address.Country, address.City)
+	updateAddress := command.NewUpdateAddress(uuid, params.Street, domainAddress)
+	cerr := h.app.Command.UpdateAddress.Handle(updateAddress)
+	if cerr.Error() != "" {
+		server.ErrorHandler(w, r, cerr)
+		return
+	}
+	server.SuccessWithBody(w, http.StatusOK, Address{City: address.City, Country: address.Country, PostalCode: address.PostalCode, Street: address.Street})
+}
+
 func (h httpServer) GetUserPhones(w http.ResponseWriter, r *http.Request) {
 	uuid := ""
 	retrievePhones := query.NewRetrievePhones(uuid)
