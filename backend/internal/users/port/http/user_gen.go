@@ -143,6 +143,9 @@ type PutUserAddressJSONRequestBody = Address
 // PostUserDetailJSONRequestBody defines body for PostUserDetail for application/json ContentType.
 type PostUserDetailJSONRequestBody = UserDetail
 
+// PostUserLoginJSONRequestBody defines body for PostUserLogin for application/json ContentType.
+type PostUserLoginJSONRequestBody = User
+
 // PutUserPhoneJSONRequestBody defines body for PutUserPhone for application/json ContentType.
 type PutUserPhoneJSONRequestBody = Phone
 
@@ -187,6 +190,9 @@ type ServerInterface interface {
 
 	// (PUT /user/detail/update-last-name)
 	PutUserDetailUpdateLastName(w http.ResponseWriter, r *http.Request, params PutUserDetailUpdateLastNameParams)
+
+	// (POST /user/login)
+	PostUserLogin(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /user/phone)
 	DeleteUserPhone(w http.ResponseWriter, r *http.Request, params DeleteUserPhoneParams)
@@ -512,6 +518,21 @@ func (siw *ServerInterfaceWrapper) PutUserDetailUpdateLastName(w http.ResponseWr
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PutUserDetailUpdateLastName(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// PostUserLogin operation middleware
+func (siw *ServerInterfaceWrapper) PostUserLogin(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PostUserLogin(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -904,6 +925,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/user/detail", wrapper.PostUserDetail)
 	m.HandleFunc("PUT "+options.BaseURL+"/user/detail/update-first-name", wrapper.PutUserDetailUpdateFirstName)
 	m.HandleFunc("PUT "+options.BaseURL+"/user/detail/update-last-name", wrapper.PutUserDetailUpdateLastName)
+	m.HandleFunc("POST "+options.BaseURL+"/user/login", wrapper.PostUserLogin)
 	m.HandleFunc("DELETE "+options.BaseURL+"/user/phone", wrapper.DeleteUserPhone)
 	m.HandleFunc("POST "+options.BaseURL+"/user/phone", wrapper.PostUserPhone)
 	m.HandleFunc("PUT "+options.BaseURL+"/user/phone", wrapper.PutUserPhone)

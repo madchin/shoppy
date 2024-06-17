@@ -276,6 +276,23 @@ paths:
           $ref: "#/components/responses/ErrUnauthorized"
         "5XX":
           $ref: "#/components/responses/ErrInternal"
+  /user/login:
+    post:
+      description: Login user
+      tags:
+        - user
+      requestBody:
+        required: true
+        description: credentials used to login
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: successfully logged in
+        "5XX":
+          $ref: "#/components/responses/ErrInternal"
   /user/detail:
     get:
       description: retrieve user detail
@@ -285,7 +302,7 @@ paths:
       - bearerAuth: []
       responses:
         "200":
-          description: "user detail successfully retrieved"
+          description: user detail successfully retrieved
           content:
             application/json:
               schema:

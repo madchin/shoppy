@@ -27,7 +27,6 @@ func main() {
 	logger := logrus.New()
 	app := app.NewApplication(userRepository, userDetailRepository, phoneRepository, addressRepository, logrus.NewEntry(logger))
 
-	httpServer := ports.NewHttpServer(app)
 	httpPort := os.Getenv("HTTP_PORT")
 	if httpPort == "" {
 		panic("Environment variable \"HTTP_PORT\" not specified")
@@ -51,6 +50,7 @@ func main() {
 	}
 
 	jwtAuth := auth.NewJwtAuth(privateKey, publicKey)
+	httpServer := ports.NewHttpServer(app, jwtAuth)
 	httpHandler := ports.HandlerWithOptions(httpServer, ports.StdHTTPServerOptions{
 		BaseURL:     "/api/v1",
 		Middlewares: []ports.MiddlewareFunc{ports.MiddlewareFunc(server.AuthMiddleware(jwtAuth))},

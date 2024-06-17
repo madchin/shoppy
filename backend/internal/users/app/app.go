@@ -35,6 +35,7 @@ type Query struct {
 	RetrieveUserDetail query.RetrieveUserDetailHandler
 	RetrievePhones     query.RetrievePhonesHandler
 	RetrieveAddresses  query.RetrieveAddressesHandler
+	LoginUser          query.LoginUserHandler
 }
 
 type Application struct {
@@ -74,6 +75,7 @@ func NewApplication(
 			RetrieveUserDetail: query.NewRetrieveUserDetailHandler(userDetailRepository, logger),
 			RetrievePhones:     query.NewRetrievePhonesHandler(phoneRepository, logger),
 			RetrieveAddresses:  query.NewRetrieveAddressesHandler(addressRepository, logger),
+			LoginUser:          query.NewLoginUserHandler(userRepository, logger),
 		},
 	}
 }

@@ -62,15 +62,16 @@ func (j *jwtAuth) Verify(token string) (server.UserInfo, error) {
 	if err != nil {
 		return server.UserInfo{}, err
 	}
+	claims := &CustomClaims{}
 	parser := jwt.NewParser()
-	parsedToken, err := parser.ParseWithClaims(token, CustomClaims{}, func(t *jwt.Token) (interface{}, error) {
+	parsedToken, err := parser.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
 		return key, nil
 	})
 
 	if err != nil {
 		return server.UserInfo{}, err
 	}
-	tokenClaims, ok := parsedToken.Claims.(CustomClaims)
+	tokenClaims, ok := parsedToken.Claims.(*CustomClaims)
 	if !ok {
 		return server.UserInfo{}, errors.New("custom claims are not associated with token")
 	}

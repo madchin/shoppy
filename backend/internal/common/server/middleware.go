@@ -3,6 +3,7 @@ package server
 import (
 	custom_error "backend/internal/common/errors"
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -16,8 +17,21 @@ type Auth interface {
 	Sign(UserInfo) (string, error)
 }
 
+type key int
+
+var userKey key
+
 type UserInfo struct {
 	Uuid string
+}
+
+func UserInfoFromContext(ctx context.Context) (UserInfo, bool) {
+	userInfo, ok := ctx.Value(userKey).(UserInfo)
+	return userInfo, ok
+}
+
+func NewContext(ctx context.Context, userInfo UserInfo) context.Context {
+	return context.WithValue(ctx, userKey, userInfo)
 }
 
 func NewUserInfo(uuid string) UserInfo {
@@ -42,10 +56,10 @@ func AuthMiddleware(auth Auth) Middleware {
 				token := authHeaderContent[1]
 				userInfo, err := auth.Verify(token)
 				if err != nil {
-					ErrorHandler(w, r, custom_error.NewAuthorizationError("Unauthorized", "authorization token is wrong or expired"))
+					ErrorHandler(w, r, custom_error.NewAuthorizationError("Unauthorized", fmt.Sprintf("authorization token is wrong or expired %s", err.Error())))
 					return
 				}
-				ctx := context.WithValue(r.Context(), UserInfo{}, userInfo)
+				ctx := NewContext(r.Context(), userInfo)
 
 				next.ServeHTTP(w, r.WithContext(ctx))
 			}
