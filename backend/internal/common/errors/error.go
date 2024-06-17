@@ -8,6 +8,7 @@ package custom_error
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 type ErrorType struct {
@@ -49,11 +50,14 @@ func (e ContextError) Context() string {
 }
 
 func (e ContextError) Error() string {
-	errMsg := ""
+	var errMsg []string
 	for _, err := range e.errors {
-		errMsg += err.Error()
+		errMsg = append(errMsg, err.Error())
 	}
-	return fmt.Sprintf("In %s operation error %T occured %s", e.context, e.errorType, errMsg)
+	if len(errMsg) > 0 {
+		return fmt.Sprintf("In %s operation error: %s  error message: %s", e.context, e.errorType.t, strings.Join(errMsg, ", "))
+	}
+	return ""
 }
 
 func newContextError(context string, errorType ErrorType, errors []error) ContextError {
@@ -73,11 +77,11 @@ func NewValidationError(context string, message string) ContextError {
 }
 
 func NewAuthorizationError(context string, message string) ContextError {
-	return newContextError(context, ErrorTypePersistence, []error{errors.New(message)})
+	return newContextError(context, ErrorTypeAuthorization, []error{errors.New(message)})
 }
 
 func NewConfigurationError(context string, message string) ContextError {
-	return newContextError(context, ErrorTypePersistence, []error{errors.New(message)})
+	return newContextError(context, ErrorTypeConfiguration, []error{errors.New(message)})
 }
 
 func UnknownError(context string) ContextError {
