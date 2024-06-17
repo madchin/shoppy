@@ -21,6 +21,7 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, err custom_error.Conte
 	case custom_error.ErrorTypeAuthorization:
 		unauthorized(w, httpErrs...)
 	case custom_error.ErrorTypeValidation:
+		badRequest(w, httpErrs...)
 	case custom_error.ErrorTypePersistence:
 		badRequest(w, httpErrs...)
 	default:
