@@ -4,6 +4,7 @@ import (
 	"backend/internal/common/decorator"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
@@ -27,8 +28,8 @@ func NewRegisterUserHandler(repo user.Repository, logger *logrus.Entry) decorato
 	return decorator.ApplyCommandHandler(registerUserHandler{repo}, logger)
 }
 
-func (ru registerUserHandler) Handle(cmd registerUser) custom_error.ContextError {
-	return ru.repo.Create(cmd.uuid, cmd.user, func(u user.User) []error {
+func (ru registerUserHandler) Handle(ctx context.Context, cmd registerUser) custom_error.ContextError {
+	return ru.repo.Create(ctx, cmd.uuid, cmd.user, func(u user.User) []error {
 		return u.Validate()
 	})
 

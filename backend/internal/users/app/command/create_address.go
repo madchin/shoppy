@@ -4,6 +4,7 @@ import (
 	"backend/internal/common/decorator"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
@@ -27,8 +28,8 @@ func NewCreateAddressHandler(addressRepository user.AddressRepository, logger *l
 	return decorator.ApplyCommandHandler(createAddressHandler{addressRepository}, logger)
 }
 
-func (c createAddressHandler) Handle(cmd createAddress) custom_error.ContextError {
-	return c.repo.Create(cmd.userUuid, cmd.address, func(a user.Address) []error {
+func (c createAddressHandler) Handle(ctx context.Context, cmd createAddress) custom_error.ContextError {
+	return c.repo.Create(ctx, cmd.userUuid, cmd.address, func(a user.Address) []error {
 		return a.Validate()
 	})
 }

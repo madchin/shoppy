@@ -4,6 +4,7 @@ import (
 	"backend/internal/common/decorator"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
@@ -27,8 +28,8 @@ func NewDeleteOnePhoneHandler(pr user.PhoneRepository, logger *logrus.Entry) Del
 	return decorator.ApplyCommandHandler(deletePhoneHandler{pr}, logger)
 }
 
-func (dph deletePhoneHandler) Handle(cmd deletePhone) custom_error.ContextError {
-	return dph.pr.DeletePhone(cmd.userUuid, cmd.phone, func(phones user.Phones) error {
+func (dph deletePhoneHandler) Handle(ctx context.Context, cmd deletePhone) custom_error.ContextError {
+	return dph.pr.DeletePhone(ctx, cmd.userUuid, cmd.phone, func(phones user.Phones) error {
 		if !phones.NumberExist(cmd.phone.Number()) {
 			return custom_error.NewValidationError("phone deletion", "provided phone do not exist")
 		}

@@ -4,6 +4,7 @@ import (
 	"backend/internal/common/decorator"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
@@ -27,6 +28,6 @@ func NewDeleteOneAddressHandler(repo user.AddressRepository, logger *logrus.Entr
 	return decorator.ApplyCommandHandler(deleteOneAddressHandler{repo}, logger)
 }
 
-func (dah deleteOneAddressHandler) Handle(cmd deleteOneAddress) custom_error.ContextError {
-	return dah.repo.DeleteAddress(cmd.userUuid, cmd.street)
+func (dah deleteOneAddressHandler) Handle(ctx context.Context, cmd deleteOneAddress) custom_error.ContextError {
+	return dah.repo.DeleteAddress(ctx, cmd.userUuid, cmd.street)
 }

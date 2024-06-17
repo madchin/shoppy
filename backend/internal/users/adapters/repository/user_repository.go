@@ -3,8 +3,8 @@ package adapters
 import (
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 	"database/sql"
-	"errors"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -20,13 +20,11 @@ type UserRepository struct {
 	db *sql.DB
 }
 
-var ErrUserNotFound = errors.New("user with provided uuid not found")
-
 func NewUserRepository(db *sql.DB) user.Repository {
-	return &UserRepository{db: db}
+	return UserRepository{db: db}
 }
 
-func (ur *UserRepository) GetByUuid(uuid string) (user.User, custom_error.ContextError) {
+func (ur UserRepository) GetByUuid(ctx context.Context, uuid string) (user.User, custom_error.ContextError) {
 	userDto := userDto{}
 	err := ur.db.QueryRow("SELECT * FROM Users WHERE uuid=?", uuid).Scan(&userDto.uuid, &userDto.name, &userDto.email, &userDto.password)
 	if err == sql.ErrNoRows {
@@ -40,7 +38,8 @@ func (ur *UserRepository) GetByUuid(uuid string) (user.User, custom_error.Contex
 	domainUser := userDto.mapToDomainUser()
 	return domainUser, custom_error.ContextError{}
 }
-func (ur *UserRepository) GetByEmail(email string) (user.User, custom_error.ContextError) {
+
+func (ur UserRepository) GetByEmail(ctx context.Context, email string, validatePasswordFn func(user.User) error) (user.User, custom_error.ContextError) {
 	userDto := userDto{}
 	err := ur.db.QueryRow("SELECT * FROM Users WHERE email=?", email).Scan(&userDto.uuid, &userDto.name, &userDto.email, &userDto.password)
 	if err == sql.ErrNoRows {
@@ -52,10 +51,30 @@ func (ur *UserRepository) GetByEmail(email string) (user.User, custom_error.Cont
 	}
 
 	domainUser := userDto.mapToDomainUser()
+	err = validatePasswordFn(domainUser)
+	if err != nil {
+		return user.User{}, custom_error.NewValidationError("user retrieve", err.Error())
+	}
 	return domainUser, custom_error.ContextError{}
 }
-func (ur *UserRepository) Create(uuid string, u user.User, createFn func(user.User) []error) custom_error.ContextError {
-	if _, err := ur.GetByEmail(u.Email()); err.Error() == "" {
+
+func (ur UserRepository) FindByEmail(ctx context.Context, email string) (user.User, custom_error.ContextError) {
+	userDto := userDto{}
+	err := ur.db.QueryRow("SELECT * FROM Users WHERE email=?", email).Scan(&userDto.uuid, &userDto.name, &userDto.email, &userDto.password)
+	if err == sql.ErrNoRows {
+		return user.User{}, custom_error.NewPersistenceError("user find", "user with provided email not found")
+	}
+
+	if err != nil {
+		return user.User{}, custom_error.UnknownPersistenceError("user find")
+	}
+
+	domainUser := userDto.mapToDomainUser()
+	return domainUser, custom_error.ContextError{}
+}
+
+func (ur UserRepository) Create(ctx context.Context, uuid string, u user.User, createFn func(user.User) []error) custom_error.ContextError {
+	if _, err := ur.FindByEmail(ctx, u.Email()); err.Error() == "" {
 		return custom_error.NewPersistenceError("user add", "user with provided email already exists")
 	}
 	errs := createFn(u)
@@ -69,8 +88,8 @@ func (ur *UserRepository) Create(uuid string, u user.User, createFn func(user.Us
 
 	return custom_error.ContextError{}
 }
-func (ur *UserRepository) UpdateName(uuid string, name string, updateFn func(user.User) []error) custom_error.ContextError {
-	u, err := ur.GetByUuid(uuid)
+func (ur UserRepository) UpdateName(ctx context.Context, uuid string, name string, updateFn func(user.User) []error) custom_error.ContextError {
+	u, err := ur.GetByUuid(ctx, uuid)
 	if err.Error() != "" {
 		return err
 	}
@@ -86,8 +105,8 @@ func (ur *UserRepository) UpdateName(uuid string, name string, updateFn func(use
 
 	return custom_error.ContextError{}
 }
-func (ur *UserRepository) UpdateEmail(uuid string, email string, updateFn func(user.User) []error) custom_error.ContextError {
-	u, err := ur.GetByUuid(uuid)
+func (ur UserRepository) UpdateEmail(ctx context.Context, uuid string, email string, updateFn func(user.User) []error) custom_error.ContextError {
+	u, err := ur.GetByUuid(ctx, uuid)
 	if err.Error() != "" {
 		return err
 	}
@@ -103,8 +122,8 @@ func (ur *UserRepository) UpdateEmail(uuid string, email string, updateFn func(u
 	return custom_error.ContextError{}
 }
 
-func (ur *UserRepository) UpdatePassword(uuid string, password string, updateFn func(user.User) []error) custom_error.ContextError {
-	u, err := ur.GetByUuid(uuid)
+func (ur UserRepository) UpdatePassword(ctx context.Context, uuid string, password string, updateFn func(user.User) []error) custom_error.ContextError {
+	u, err := ur.GetByUuid(ctx, uuid)
 	if err.Error() != "" {
 		return err
 	}
@@ -121,8 +140,8 @@ func (ur *UserRepository) UpdatePassword(uuid string, password string, updateFn 
 	return custom_error.ContextError{}
 }
 
-func (ur *UserRepository) Delete(uuid string) custom_error.ContextError {
-	if _, err := ur.GetByUuid(uuid); err.Error() != "" {
+func (ur UserRepository) Delete(ctx context.Context, uuid string) custom_error.ContextError {
+	if _, err := ur.GetByUuid(ctx, uuid); err.Error() != "" {
 		return err
 	}
 
@@ -135,5 +154,5 @@ func (ur *UserRepository) Delete(uuid string) custom_error.ContextError {
 }
 
 func (ur userDto) mapToDomainUser() user.User {
-	return user.NewUser(ur.name, ur.email, ur.password)
+	return user.NewUser(ur.uuid, ur.password, ur.name, ur.email)
 }

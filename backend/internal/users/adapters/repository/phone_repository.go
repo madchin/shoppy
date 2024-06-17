@@ -3,6 +3,7 @@ package adapters
 import (
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 	"database/sql"
 )
 
@@ -21,7 +22,7 @@ func NewPhoneRepository(db *sql.DB) user.PhoneRepository {
 	return PhoneRepository{db}
 }
 
-func (p PhoneRepository) Get(userUuid string) (user.Phones, custom_error.ContextError) {
+func (p PhoneRepository) Get(ctx context.Context, userUuid string) (user.Phones, custom_error.ContextError) {
 	rows, err := p.db.Query("SELECT * FROM Phones WHERE uuid=?", userUuid)
 
 	if err == sql.ErrNoRows {
@@ -47,7 +48,7 @@ func (p PhoneRepository) Get(userUuid string) (user.Phones, custom_error.Context
 	return phones, custom_error.ContextError{}
 }
 
-func (ur PhoneRepository) Create(userUuid string, phone user.Phone, validateFn func(user.Phone) []error) custom_error.ContextError {
+func (ur PhoneRepository) Create(ctx context.Context, userUuid string, phone user.Phone, validateFn func(user.Phone) []error) custom_error.ContextError {
 
 	if errs := validateFn(phone); len(errs) > 0 {
 		return custom_error.NewValidationErrors("user phone create", errs)
@@ -58,12 +59,12 @@ func (ur PhoneRepository) Create(userUuid string, phone user.Phone, validateFn f
 	return custom_error.ContextError{}
 }
 
-func (ur PhoneRepository) Update(userUuid string, prevNumber string, phone user.Phone, validateFn func(user.Phone) []error) custom_error.ContextError {
+func (ur PhoneRepository) Update(ctx context.Context, userUuid string, prevNumber string, phone user.Phone, validateFn func(user.Phone) []error) custom_error.ContextError {
 	if errs := validateFn(phone); len(errs) > 0 {
 		return custom_error.NewValidationErrors("user number update", errs)
 	}
 
-	if _, err := ur.Get(userUuid); err.Error() != "" {
+	if _, err := ur.Get(ctx, userUuid); err.Error() != "" {
 		return err
 	}
 
@@ -74,8 +75,8 @@ func (ur PhoneRepository) Update(userUuid string, prevNumber string, phone user.
 	return custom_error.ContextError{}
 }
 
-func (ur PhoneRepository) DeletePhone(userUuid string, phone user.Phone, deleteFn func(user.Phones) error) custom_error.ContextError {
-	phones, err := ur.Get(userUuid)
+func (ur PhoneRepository) DeletePhone(ctx context.Context, userUuid string, phone user.Phone, deleteFn func(user.Phones) error) custom_error.ContextError {
+	phones, err := ur.Get(ctx, userUuid)
 	if err.Error() != "" {
 		return err
 	}
@@ -91,8 +92,8 @@ func (ur PhoneRepository) DeletePhone(userUuid string, phone user.Phone, deleteF
 	return custom_error.ContextError{}
 }
 
-func (ur PhoneRepository) DeleteAll(userUuid string) custom_error.ContextError {
-	if _, err := ur.Get(userUuid); err.Error() != "" {
+func (ur PhoneRepository) DeleteAll(ctx context.Context, userUuid string) custom_error.ContextError {
+	if _, err := ur.Get(ctx, userUuid); err.Error() != "" {
 		return err
 	}
 

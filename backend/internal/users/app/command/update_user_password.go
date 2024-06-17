@@ -4,6 +4,7 @@ import (
 	"backend/internal/common/decorator"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
@@ -27,8 +28,8 @@ func NewUpdateUserPasswordHandler(userRepository user.Repository, logger *logrus
 	return decorator.ApplyCommandHandler(updateUserPasswordHandler{userRepository}, logger)
 }
 
-func (c updateUserPasswordHandler) Handle(cmd updateUserPassword) custom_error.ContextError {
-	return c.userRepository.UpdatePassword(cmd.uuid, cmd.password, func(u user.User) []error {
+func (c updateUserPasswordHandler) Handle(ctx context.Context, cmd updateUserPassword) custom_error.ContextError {
+	return c.userRepository.UpdatePassword(ctx, cmd.uuid, cmd.password, func(u user.User) []error {
 		return u.ValidatePassword()
 	})
 }

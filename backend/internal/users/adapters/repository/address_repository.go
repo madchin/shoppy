@@ -3,6 +3,7 @@ package adapters
 import (
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 	"database/sql"
 )
 
@@ -24,7 +25,7 @@ func NewAddressRepository(db *sql.DB) user.AddressRepository {
 	return addressRepository{db}
 }
 
-func (a addressRepository) Create(userUuid string, address user.Address, validateFn func(user.Address) []error) custom_error.ContextError {
+func (a addressRepository) Create(ctx context.Context, userUuid string, address user.Address, validateFn func(user.Address) []error) custom_error.ContextError {
 	if errs := validateFn(address); len(errs) > 0 {
 		return custom_error.NewValidationErrors("address creation", errs)
 	}
@@ -36,8 +37,8 @@ func (a addressRepository) Create(userUuid string, address user.Address, validat
 }
 
 // DeleteAddress implements user.AddressRepository.
-func (a addressRepository) DeleteAddress(userUuid string, street string) custom_error.ContextError {
-	addresses, err := a.Get(userUuid)
+func (a addressRepository) DeleteAddress(ctx context.Context, userUuid string, street string) custom_error.ContextError {
+	addresses, err := a.Get(ctx, userUuid)
 	if err.Error() != "" {
 		return err
 	}
@@ -51,8 +52,8 @@ func (a addressRepository) DeleteAddress(userUuid string, street string) custom_
 }
 
 // DeleteAll implements user.AddressRepository.
-func (a addressRepository) DeleteAll(userUuid string) custom_error.ContextError {
-	_, err := a.Get(userUuid)
+func (a addressRepository) DeleteAll(ctx context.Context, userUuid string) custom_error.ContextError {
+	_, err := a.Get(ctx, userUuid)
 	if err.Error() != "" {
 		return err
 	}
@@ -62,7 +63,7 @@ func (a addressRepository) DeleteAll(userUuid string) custom_error.ContextError 
 	return custom_error.ContextError{}
 }
 
-func (a addressRepository) Get(userUuid string) (user.Addresses, custom_error.ContextError) {
+func (a addressRepository) Get(ctx context.Context, userUuid string) (user.Addresses, custom_error.ContextError) {
 	rows, err := a.db.Query("SELECT (uuid, postalCode, street, country, city) FROM Addresses WHERE uuid=?", userUuid)
 	if err == sql.ErrNoRows {
 		return user.Addresses{}, custom_error.NewPersistenceError("address retrieve", "user do not have any addresses")
@@ -85,11 +86,11 @@ func (a addressRepository) Get(userUuid string) (user.Addresses, custom_error.Co
 	return addresses, custom_error.ContextError{}
 }
 
-func (a addressRepository) Update(userUuid string, addressStreet string, address user.Address, validateFn func(user.Address) []error) custom_error.ContextError {
+func (a addressRepository) Update(ctx context.Context, userUuid string, addressStreet string, address user.Address, validateFn func(user.Address) []error) custom_error.ContextError {
 	if errs := validateFn(address); len(errs) > 0 {
 		return custom_error.NewValidationErrors("address update", errs)
 	}
-	addresses, cerr := a.Get(userUuid)
+	addresses, cerr := a.Get(ctx, userUuid)
 	if cerr.Error() != "" {
 		return cerr
 	}

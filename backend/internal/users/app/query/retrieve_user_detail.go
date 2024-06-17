@@ -4,6 +4,7 @@ import (
 	"backend/internal/common/decorator"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
@@ -26,6 +27,6 @@ func NewRetrieveUserDetailHandler(repo user.DetailRepository, logger *logrus.Ent
 	return decorator.ApplyQueryHandler(retrieveUserDetailHandler{repo}, logger)
 }
 
-func (rh retrieveUserDetailHandler) Handle(retrieveUser retrieveUserDetail) (user.UserDetail, custom_error.ContextError) {
-	return rh.repo.Get(retrieveUser.uuid)
+func (rh retrieveUserDetailHandler) Handle(ctx context.Context, retrieveUser retrieveUserDetail) (user.UserDetail, custom_error.ContextError) {
+	return rh.repo.Get(ctx, retrieveUser.uuid)
 }

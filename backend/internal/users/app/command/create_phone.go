@@ -4,6 +4,7 @@ import (
 	"backend/internal/common/decorator"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
@@ -27,8 +28,8 @@ func NewCreatePhoneHandler(phoneRepository user.PhoneRepository, logger *logrus.
 	return decorator.ApplyCommandHandler(createPhoneHandler{phoneRepository}, logger)
 }
 
-func (cph createPhoneHandler) Handle(cmd createPhone) custom_error.ContextError {
-	return cph.pr.Create(cmd.userUuid, cmd.phone, func(p user.Phone) []error {
+func (cph createPhoneHandler) Handle(ctx context.Context, cmd createPhone) custom_error.ContextError {
+	return cph.pr.Create(ctx, cmd.userUuid, cmd.phone, func(p user.Phone) []error {
 		return p.Validate()
 	})
 }
