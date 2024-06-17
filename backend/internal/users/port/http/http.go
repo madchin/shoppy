@@ -8,6 +8,8 @@ import (
 	"backend/internal/users/app/query"
 	"backend/internal/users/domain/user"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type httpServer struct {
@@ -230,10 +232,14 @@ func (h httpServer) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h httpServer) PostUser(w http.ResponseWriter, r *http.Request) {
-	uuid := ""
+	uuid := uuid.NewString()
 	decodedUser, err := server.DecodeJSON[User](r.Body)
 	if err != nil {
 		server.ErrorHandler(w, r, custom_error.UnknownError("user add"))
+		return
+	}
+	if decodedUser.Password == nil {
+		server.ErrorHandler(w, r, custom_error.NewValidationError("user add", "password has not been provided"))
 		return
 	}
 	domainUser := user.NewUser(decodedUser.Name, decodedUser.Email, *decodedUser.Password)
