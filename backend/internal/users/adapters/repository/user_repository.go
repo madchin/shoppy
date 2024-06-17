@@ -1,7 +1,6 @@
 package adapters
 
 import (
-	common_adapter "backend/internal/common/adapters"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
 	"database/sql"
@@ -27,7 +26,7 @@ func NewUserRepository(db *sql.DB) user.Repository {
 	return &UserRepository{db: db}
 }
 
-func (ur *UserRepository) Get(uuid string) (user.User, custom_error.ContextError) {
+func (ur *UserRepository) GetByUuid(uuid string) (user.User, custom_error.ContextError) {
 	userDto := userDto{}
 	err := ur.db.QueryRow("SELECT * FROM Users WHERE uuid=?", uuid).Scan(&userDto.uuid, &userDto.name, &userDto.email, &userDto.password)
 	if err == sql.ErrNoRows {
@@ -41,23 +40,37 @@ func (ur *UserRepository) Get(uuid string) (user.User, custom_error.ContextError
 	domainUser := userDto.mapToDomainUser()
 	return domainUser, custom_error.ContextError{}
 }
+func (ur *UserRepository) GetByEmail(email string) (user.User, custom_error.ContextError) {
+	userDto := userDto{}
+	err := ur.db.QueryRow("SELECT * FROM Users WHERE email=?", email).Scan(&userDto.uuid, &userDto.name, &userDto.email, &userDto.password)
+	if err == sql.ErrNoRows {
+		return user.User{}, custom_error.NewPersistenceError("user retrieve", "user with provided email not found")
+	}
+
+	if err != nil {
+		return user.User{}, custom_error.UnknownPersistenceError("user retrieve")
+	}
+
+	domainUser := userDto.mapToDomainUser()
+	return domainUser, custom_error.ContextError{}
+}
 func (ur *UserRepository) Create(uuid string, u user.User, createFn func(user.User) []error) custom_error.ContextError {
+	if _, err := ur.GetByEmail(u.Email()); err.Error() == "" {
+		return custom_error.NewPersistenceError("user add", "user with provided email already exists")
+	}
 	errs := createFn(u)
 	if len(errs) > 0 {
 		return custom_error.NewValidationErrors("user add", errs)
 	}
 
 	if _, err := ur.db.Exec("INSERT INTO Users (uuid, name, email, password) VALUES (?, ?, ?, ?)", uuid, u.Name(), u.Email(), u.Password()); err != nil {
-		if common_adapter.IsDuplicateEntryError(err) {
-			return custom_error.NewPersistenceError("user add", "user with provided email already exists")
-		}
 		return custom_error.UnknownPersistenceError("user add")
 	}
 
 	return custom_error.ContextError{}
 }
 func (ur *UserRepository) UpdateName(uuid string, name string, updateFn func(user.User) []error) custom_error.ContextError {
-	u, err := ur.Get(uuid)
+	u, err := ur.GetByUuid(uuid)
 	if err.Error() != "" {
 		return err
 	}
@@ -74,7 +87,7 @@ func (ur *UserRepository) UpdateName(uuid string, name string, updateFn func(use
 	return custom_error.ContextError{}
 }
 func (ur *UserRepository) UpdateEmail(uuid string, email string, updateFn func(user.User) []error) custom_error.ContextError {
-	u, err := ur.Get(uuid)
+	u, err := ur.GetByUuid(uuid)
 	if err.Error() != "" {
 		return err
 	}
@@ -91,7 +104,7 @@ func (ur *UserRepository) UpdateEmail(uuid string, email string, updateFn func(u
 }
 
 func (ur *UserRepository) UpdatePassword(uuid string, password string, updateFn func(user.User) []error) custom_error.ContextError {
-	u, err := ur.Get(uuid)
+	u, err := ur.GetByUuid(uuid)
 	if err.Error() != "" {
 		return err
 	}
@@ -109,7 +122,7 @@ func (ur *UserRepository) UpdatePassword(uuid string, password string, updateFn 
 }
 
 func (ur *UserRepository) Delete(uuid string) custom_error.ContextError {
-	if _, err := ur.Get(uuid); err.Error() != "" {
+	if _, err := ur.GetByUuid(uuid); err.Error() != "" {
 		return err
 	}
 

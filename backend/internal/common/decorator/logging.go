@@ -14,8 +14,8 @@ type queryHandler[Q any, R any] struct {
 
 func (q queryHandler[Q, R]) Handle(cmd Q) (result R, err custom_error.ContextError) {
 	logger := q.logger.WithFields(logrus.Fields{
-		"query_name": fmt.Sprintf("%T", cmd),
-		"query_body": fmt.Sprintf("%v", cmd),
+		"query_name": fmt.Sprintf(" %T", cmd),
+		"query_body": fmt.Sprintf(" %v", cmd),
 	})
 
 	logger.Debug("Executing query")
@@ -38,8 +38,8 @@ type commandHandler[C any] struct {
 
 func (c commandHandler[C]) Handle(cmd C) (err custom_error.ContextError) {
 	logger := c.logger.WithFields(logrus.Fields{
-		"command_name": fmt.Sprintf("%T", cmd),
-		"command_body": fmt.Sprintf("%v", cmd),
+		"command_name": fmt.Sprintf(" %T", cmd),
+		"command_body": fmt.Sprintf(" %v", cmd),
 	})
 	logger.Debug("Executing command")
 

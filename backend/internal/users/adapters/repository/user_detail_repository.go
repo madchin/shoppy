@@ -1,7 +1,6 @@
 package adapters
 
 import (
-	common_adapter "backend/internal/common/adapters"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
 	"database/sql"
@@ -32,15 +31,15 @@ func (ur UserDetailRepository) Get(userUuid string) (user.UserDetail, custom_err
 }
 
 func (ur UserDetailRepository) Create(userUuid string, ud user.UserDetail, validateFn func(user.UserDetail) []error) custom_error.ContextError {
+	if _, err := ur.Get(userUuid); err.Error() != "" {
+		return custom_error.NewPersistenceError("user add", "user with provided email already exists")
+	}
 	errs := validateFn(ud)
 	if len(errs) > 0 {
 		return custom_error.NewValidationErrors("user detail create", errs)
 	}
 
 	if _, err := ur.db.Exec("INSERT INTO UserDetails (uuid, firstName, lastName) VALUES (?, ?)", userUuid, ud.FirstName(), ud.LastName()); err != nil {
-		if common_adapter.IsDuplicateEntryError(err) {
-			return custom_error.NewPersistenceError("user detail create", "user with provided uuid already exists")
-		}
 		return custom_error.UnknownPersistenceError("user detail create")
 	}
 	return custom_error.ContextError{}

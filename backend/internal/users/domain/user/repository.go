@@ -8,7 +8,8 @@ type Repository interface {
 		user User,
 		validateFn func(User) []error,
 	) custom_error.ContextError
-	Get(uuid string) (User, custom_error.ContextError)
+	GetByUuid(uuid string) (User, custom_error.ContextError)
+	GetByEmail(email string) (User, custom_error.ContextError)
 	UpdateName(
 		uuid string,
 		name string,

@@ -27,5 +27,5 @@ func NewRetrieveUserHandler(repo user.Repository, logger *logrus.Entry) Retrieve
 }
 
 func (rh retrieveUserHandler) Handle(retrieveUser retrieveUser) (user.User, custom_error.ContextError) {
-	return rh.repo.Get(retrieveUser.uuid)
+	return rh.repo.GetByUuid(retrieveUser.uuid)
 }
