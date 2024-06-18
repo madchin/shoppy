@@ -8,18 +8,21 @@ import (
 	"strings"
 )
 
-type Middleware func(http.Handler) http.Handler
-
+// This untyped string is passed with context from oapi generated code
+//
+// We use it to verify which route is eligible for auth middleware and vice-versa
 const BearerAuthScopes = "bearerAuth.Scopes"
+
+type key int
+
+var userKey key
+
+type Middleware func(http.Handler) http.Handler
 
 type Auth interface {
 	Verify(token string) (UserInfo, error)
 	Sign(UserInfo) (string, error)
 }
-
-type key int
-
-var userKey key
 
 type UserInfo struct {
 	Uuid string
@@ -46,6 +49,7 @@ func AuthMiddleware(auth Auth) Middleware {
 				next.ServeHTTP(w, r)
 				return
 			}
+
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
 				ErrorHandler(w, r, custom_error.NewAuthorizationError("Unauthorized", "missing 'Authorization' header"))

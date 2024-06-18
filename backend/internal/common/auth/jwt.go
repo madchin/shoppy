@@ -17,6 +17,9 @@ type CustomClaims struct {
 	jwt.RegisteredClaims
 }
 
+// Implements ClaimsValidator interface to provide validation for custom claims.
+//
+// Validate() is called in jwt.ParseWithClaims when custom claims struct is passed as parameter
 func (c CustomClaims) Validate() error {
 	if c.Uuid == "" {
 		return errors.New("uuid claim not provided")
