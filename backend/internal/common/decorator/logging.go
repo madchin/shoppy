@@ -2,6 +2,7 @@ package decorator
 
 import (
 	custom_error "backend/internal/common/errors"
+	"context"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -12,10 +13,10 @@ type queryHandler[Q any, R any] struct {
 	logger *logrus.Entry
 }
 
-func (q queryHandler[Q, R]) Handle(cmd Q) (result R, err custom_error.ContextError) {
+func (q queryHandler[Q, R]) Handle(ctx context.Context, cmd Q) (result R, err custom_error.ContextError) {
 	logger := q.logger.WithFields(logrus.Fields{
-		"query_name": fmt.Sprintf("%T", cmd),
-		"query_body": fmt.Sprintf("%v", cmd),
+		"query_name": fmt.Sprintf(" %T", cmd),
+		"query_body": fmt.Sprintf(" %v", cmd),
 	})
 
 	logger.Debug("Executing query")
@@ -28,7 +29,7 @@ func (q queryHandler[Q, R]) Handle(cmd Q) (result R, err custom_error.ContextErr
 		logger.Info("Query executed successfully")
 	}()
 
-	return q.base.Handle(cmd)
+	return q.base.Handle(ctx, cmd)
 }
 
 type commandHandler[C any] struct {
@@ -36,10 +37,10 @@ type commandHandler[C any] struct {
 	logger *logrus.Entry
 }
 
-func (c commandHandler[C]) Handle(cmd C) (err custom_error.ContextError) {
+func (c commandHandler[C]) Handle(ctx context.Context, cmd C) (err custom_error.ContextError) {
 	logger := c.logger.WithFields(logrus.Fields{
-		"command_name": fmt.Sprintf("%T", cmd),
-		"command_body": fmt.Sprintf("%v", cmd),
+		"command_name": fmt.Sprintf(" %T", cmd),
+		"command_body": fmt.Sprintf(" %v", cmd),
 	})
 	logger.Debug("Executing command")
 
@@ -51,5 +52,5 @@ func (c commandHandler[C]) Handle(cmd C) (err custom_error.ContextError) {
 		logger.Info("Command executed successfully")
 	}()
 
-	return c.base.Handle(cmd)
+	return c.base.Handle(ctx, cmd)
 }

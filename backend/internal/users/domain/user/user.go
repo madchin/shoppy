@@ -6,6 +6,7 @@ import (
 )
 
 type User struct {
+	uuid     string
 	name     string
 	email    string
 	password string
@@ -19,8 +20,8 @@ const (
 	emailMaxLength    = 320
 )
 
-func NewUser(name string, email string, password string) User {
-	return User{name: name, email: email, password: password}
+func NewUser(uuid string, password string, name string, email string) User {
+	return User{uuid: uuid, password: password, name: name, email: email}
 }
 
 func (u User) Name() string {
@@ -29,6 +30,10 @@ func (u User) Name() string {
 
 func (u User) Email() string {
 	return u.email
+}
+
+func (u User) Uuid() string {
+	return u.uuid
 }
 
 func (u User) Password() string {
@@ -76,4 +81,11 @@ func (u User) ValidatePassword() (errs []error) {
 		errs = append(errs, errors.New("short-password"))
 	}
 	return
+}
+
+func (u User) IsPasswordEqual(password string) (err error) {
+	if u.password == password {
+		return nil
+	}
+	return errors.New("password is not correct")
 }

@@ -4,6 +4,7 @@ import (
 	"backend/internal/common/decorator"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
@@ -27,8 +28,8 @@ func NewUpdateUserDetailFirstNameHandler(repo user.DetailRepository, logger *log
 	return decorator.ApplyCommandHandler(updateUserDetailFirstNameHandler{repo}, logger)
 }
 
-func (u updateUserDetailFirstNameHandler) Handle(cmd updateUserDetailFirstName) custom_error.ContextError {
-	return u.repo.UpdateFirstName(cmd.uuid, cmd.firstName, func(u user.UserDetail) error {
+func (u updateUserDetailFirstNameHandler) Handle(ctx context.Context, cmd updateUserDetailFirstName) custom_error.ContextError {
+	return u.repo.UpdateFirstName(ctx, cmd.uuid, cmd.firstName, func(u user.UserDetail) error {
 		return u.ValidateFirstName()
 	})
 }

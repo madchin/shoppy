@@ -4,6 +4,7 @@ import (
 	"backend/internal/common/decorator"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
@@ -28,8 +29,8 @@ func NewUpdatePhoneHandler(pr user.PhoneRepository, logger *logrus.Entry) Update
 	return decorator.ApplyCommandHandler(updatePhoneHandler{pr}, logger)
 }
 
-func (uph updatePhoneHandler) Handle(cmd updatePhone) custom_error.ContextError {
-	return uph.pr.Update(cmd.userUuid, cmd.prevNumber, cmd.phone, func(p user.Phone) []error {
+func (uph updatePhoneHandler) Handle(ctx context.Context, cmd updatePhone) custom_error.ContextError {
+	return uph.pr.Update(ctx, cmd.userUuid, cmd.prevNumber, cmd.phone, func(p user.Phone) []error {
 		return p.Validate()
 	})
 }

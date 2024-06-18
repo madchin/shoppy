@@ -18,6 +18,8 @@ WORKDIR /
 
 COPY --from=build-stage /api-bin /api-bin
 
+COPY internal/users/users_private_api.key internal/users/users_public_api.key ./
+
 EXPOSE 8081
 
 USER nonroot:nonroot

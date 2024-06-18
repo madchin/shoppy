@@ -26,13 +26,12 @@ func NewDatabase() (*sql.DB, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		panic(fmt.Sprintf("DB CONFIG ERROR: db has not been opened: %s", err.Error()))
+		panic(fmt.Sprintf("DB CONFIG ERROR: db has not been opened: %s \n dsn %s", err.Error(), dsn))
 	}
 
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
-
 	err = createTables(db)
 	if err != nil {
 		panic(fmt.Sprintf("DB CONFIG ERROR: tables has not been created: %s", err.Error()))
@@ -42,7 +41,7 @@ func NewDatabase() (*sql.DB, error) {
 }
 
 func createTables(db *sql.DB) error {
-	_, err := db.Exec("CREATE TABLE IF NOT EXISTS Users (uuid varchar(36) NOT NULL, name varchar(255), email varchar(255) NOT NULL UNIQUE, PRIMARY KEY (uuid))")
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS Users (uuid varchar(36) NOT NULL, name varchar(255), email varchar(255) NOT NULL UNIQUE, password varchar(255), PRIMARY KEY (uuid))")
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"backend/internal/common/decorator"
 	custom_error "backend/internal/common/errors"
 	"backend/internal/users/domain/user"
+	"context"
 
 	"github.com/sirupsen/logrus"
 )
@@ -27,8 +28,8 @@ func NewUpdateUserEmailHandler(repo user.Repository, logger *logrus.Entry) Updat
 	return decorator.ApplyCommandHandler(updateUserEmailHandler{repo}, logger)
 }
 
-func (u updateUserEmailHandler) Handle(cmd updateUserEmail) custom_error.ContextError {
-	return u.repo.UpdateEmail(cmd.uuid, cmd.email, func(u user.User) []error {
+func (u updateUserEmailHandler) Handle(ctx context.Context, cmd updateUserEmail) custom_error.ContextError {
+	return u.repo.UpdateEmail(ctx, cmd.uuid, cmd.email, func(u user.User) []error {
 		return u.ValidateEmail()
 	})
 }
