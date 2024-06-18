@@ -32,8 +32,8 @@ func (ur UserDetailRepository) Get(ctx context.Context, userUuid string) (user.U
 }
 
 func (ur UserDetailRepository) Create(ctx context.Context, userUuid string, ud user.UserDetail, validateFn func(user.UserDetail) []error) custom_error.ContextError {
-	if _, err := ur.Get(ctx, userUuid); err.Error() != "" {
-		return custom_error.NewPersistenceError("user add", "user with provided email already exists")
+	if u, _ := ur.Get(ctx, userUuid); u.Exists() {
+		return custom_error.NewPersistenceError("user add", "user details already exists")
 	}
 	errs := validateFn(ud)
 	if len(errs) > 0 {

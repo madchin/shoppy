@@ -41,6 +41,10 @@ func (u User) Password() string {
 	return u.password
 }
 
+func (u User) Exists() bool {
+	return u.uuid != "" || u.email != "" || u.password != "" || u.name != ""
+}
+
 func (u User) Validate() (errs []error) {
 	errs = u.ValidateName()
 	errs = custom_error.AppendError(errs, u.ValidateEmail()...)

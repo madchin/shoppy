@@ -27,8 +27,8 @@ func (u UserDetail) Validate() (errs []error) {
 	return
 }
 
-func (u UserDetail) IsProvided() bool {
-	return u.Validate() != nil
+func (u UserDetail) Exists() bool {
+	return u.firstName != "" || u.lastName != ""
 }
 
 func (u UserDetail) ValidateFirstName() (err error) {
