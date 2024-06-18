@@ -38,6 +38,7 @@ func (h httpServer) PostUserLogin(w http.ResponseWriter, r *http.Request) {
 	u, cerr := h.app.Query.LoginUser.Handle(r.Context(), user)
 	if cerr.Error() != "" {
 		server.ErrorHandler(w, r, cerr)
+		return
 	}
 	userInfo := server.NewUserInfo(u.Uuid())
 	token, err := h.authProvider.Sign(userInfo)
@@ -104,6 +105,7 @@ func (h httpServer) PostUserAddress(w http.ResponseWriter, r *http.Request) {
 	address, err := server.DecodeJSON[Address](r.Body)
 	if err != nil {
 		server.ErrorHandler(w, r, custom_error.UnknownError("user address add"))
+		return
 	}
 	domainAddress := user.NewAddress(address.PostalCode, address.Street, address.Country, address.City)
 	createAddress := command.NewCreateAddress(userInfo.Uuid, domainAddress)
@@ -124,6 +126,7 @@ func (h httpServer) PutUserAddress(w http.ResponseWriter, r *http.Request, param
 	address, err := server.DecodeJSON[Address](r.Body)
 	if err != nil {
 		server.ErrorHandler(w, r, custom_error.UnknownError("user address add"))
+		return
 	}
 	domainAddress := user.NewAddress(address.PostalCode, address.Street, address.Country, address.City)
 	updateAddress := command.NewUpdateAddress(userInfo.Uuid, params.Street, domainAddress)

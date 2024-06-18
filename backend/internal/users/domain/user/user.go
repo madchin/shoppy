@@ -1,6 +1,7 @@
 package user
 
 import (
+	custom_error "backend/internal/common/errors"
 	"errors"
 	"regexp"
 )
@@ -40,52 +41,56 @@ func (u User) Password() string {
 	return u.password
 }
 
+func (u User) Exists() bool {
+	return u.uuid != "" || u.email != "" || u.password != "" || u.name != ""
+}
+
 func (u User) Validate() (errs []error) {
 	errs = u.ValidateName()
-	errs = append(errs, u.ValidateEmail()...)
-	errs = append(errs, u.ValidatePassword()...)
+	errs = custom_error.AppendError(errs, u.ValidateEmail()...)
+	errs = custom_error.AppendError(errs, u.ValidatePassword()...)
 	return
 }
 
 func (u User) ValidateName() (errs []error) {
 	if u.name == "" {
-		errs = append(errs, errors.New("empty-name"))
+		errs = custom_error.AppendError(errs, errors.New("empty-name"))
 	}
 	if len(u.name) < nameMinLength {
-		errs = append(errs, errors.New("short-name"))
+		errs = custom_error.AppendError(errs, errors.New("short-name"))
 	}
 	if len(u.name) > nameMaxLength {
-		errs = append(errs, errors.New("long-name"))
+		errs = custom_error.AppendError(errs, errors.New("long-name"))
 	}
 	return
 }
 
 func (u User) ValidateEmail() (errs []error) {
 	if u.email == "" {
-		errs = append(errs, errors.New("empty-email"))
+		errs = custom_error.AppendError(errs, errors.New("empty-email"))
 	}
 	if len(u.email) > emailMaxLength {
-		errs = append(errs, errors.New("long-email"))
+		errs = custom_error.AppendError(errs, errors.New("long-email"))
 	}
 	ok, _ := regexp.MatchString(emailRegex, u.email)
 	if !ok {
-		errs = append(errs, errors.New("match-email"))
+		errs = custom_error.AppendError(errs, errors.New("match-email"))
 	}
 	return
 }
 func (u User) ValidatePassword() (errs []error) {
 	if u.password == "" {
-		errs = append(errs, errors.New("empty-password"))
+		errs = custom_error.AppendError(errs, errors.New("empty-password"))
 	}
 	if len(u.password) < passwordMinLength {
-		errs = append(errs, errors.New("short-password"))
+		errs = custom_error.AppendError(errs, errors.New("short-password"))
 	}
 	return
 }
 
 func (u User) IsPasswordEqual(password string) (err error) {
-	if u.password == password {
-		return nil
+	if u.password != password {
+		err = errors.New("password is not correct")
 	}
-	return errors.New("password is not correct")
+	return
 }

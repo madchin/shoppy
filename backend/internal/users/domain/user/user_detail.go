@@ -1,6 +1,7 @@
 package user
 
 import (
+	custom_error "backend/internal/common/errors"
 	"errors"
 )
 
@@ -21,13 +22,13 @@ func NewUserDetail(firstName string, lastName string) UserDetail {
 	return UserDetail{firstName, lastName}
 }
 func (u UserDetail) Validate() (errs []error) {
-	errs = append(errs, u.ValidateFirstName())
-	errs = append(errs, u.ValidateLastName())
+	errs = custom_error.AppendError(errs, u.ValidateFirstName())
+	errs = custom_error.AppendError(errs, u.ValidateLastName())
 	return
 }
 
-func (u UserDetail) IsProvided() bool {
-	return u.Validate() != nil
+func (u UserDetail) Exists() bool {
+	return u.firstName != "" || u.lastName != ""
 }
 
 func (u UserDetail) ValidateFirstName() (err error) {

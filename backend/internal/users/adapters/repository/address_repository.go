@@ -36,7 +36,6 @@ func (a addressRepository) Create(ctx context.Context, userUuid string, address 
 	return custom_error.ContextError{}
 }
 
-// DeleteAddress implements user.AddressRepository.
 func (a addressRepository) DeleteAddress(ctx context.Context, userUuid string, street string) custom_error.ContextError {
 	addresses, err := a.Get(ctx, userUuid)
 	if err.Error() != "" {
@@ -51,7 +50,6 @@ func (a addressRepository) DeleteAddress(ctx context.Context, userUuid string, s
 	return custom_error.ContextError{}
 }
 
-// DeleteAll implements user.AddressRepository.
 func (a addressRepository) DeleteAll(ctx context.Context, userUuid string) custom_error.ContextError {
 	_, err := a.Get(ctx, userUuid)
 	if err.Error() != "" {

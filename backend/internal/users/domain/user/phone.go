@@ -1,6 +1,7 @@
 package user
 
 import (
+	custom_error "backend/internal/common/errors"
 	"errors"
 	"regexp"
 )
@@ -49,11 +50,11 @@ func (phone Phone) Validate() (errs []error) {
 
 func (p Phone) validateNumber() (errs []error) {
 	if len(p.number) > maxNumberLength {
-		errs = append(errs, errors.New("Phone number is too long"))
+		errs = custom_error.AppendError(errs, errors.New("Phone number is too long"))
 	}
 	ok, _ := regexp.MatchString(numberRegex, p.number)
 	if !ok {
-		errs = append(errs, errors.New("Phone format is wrong"))
+		errs = custom_error.AppendError(errs, errors.New("Phone format is wrong"))
 	}
 	return
 }

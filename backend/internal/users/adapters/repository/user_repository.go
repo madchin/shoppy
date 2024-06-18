@@ -74,7 +74,7 @@ func (ur UserRepository) FindByEmail(ctx context.Context, email string) (user.Us
 }
 
 func (ur UserRepository) Create(ctx context.Context, uuid string, u user.User, createFn func(user.User) []error) custom_error.ContextError {
-	if _, err := ur.FindByEmail(ctx, u.Email()); err.Error() == "" {
+	if user, _ := ur.FindByEmail(ctx, u.Email()); user.Exists() {
 		return custom_error.NewPersistenceError("user add", "user with provided email already exists")
 	}
 	errs := createFn(u)
