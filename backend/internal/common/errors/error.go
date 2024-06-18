@@ -49,6 +49,20 @@ func (e ContextError) Context() string {
 	return e.context
 }
 
+func AppendError(errs []error, e ...error) []error {
+	var tmp []error
+	if len(errs) > 0 {
+		tmp = errs
+	}
+	for _, err := range e {
+		if err != nil {
+			tmp = append(tmp, err)
+		}
+	}
+
+	return tmp
+}
+
 func (e ContextError) Error() string {
 	var errMsg []string
 	for _, err := range e.errors {

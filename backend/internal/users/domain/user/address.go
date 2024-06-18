@@ -1,6 +1,9 @@
 package user
 
-import "errors"
+import (
+	custom_error "backend/internal/common/errors"
+	"errors"
+)
 
 type Address struct {
 	postalCode string
@@ -66,10 +69,10 @@ func (a Address) validateCity() (err error) {
 }
 
 func (a Address) Validate() (errs []error) {
-	errs = append(errs, a.validateCity())
-	errs = append(errs, a.validateCountry())
-	errs = append(errs, a.validatePostalCode())
-	errs = append(errs, a.validateStreet())
+	errs = custom_error.AppendError(errs, a.validateCity())
+	errs = custom_error.AppendError(errs, a.validateCountry())
+	errs = custom_error.AppendError(errs, a.validatePostalCode())
+	errs = custom_error.AppendError(errs, a.validateStreet())
 
 	return
 }
